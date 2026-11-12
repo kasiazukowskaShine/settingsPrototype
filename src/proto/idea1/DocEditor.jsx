@@ -30,7 +30,7 @@ function Text({ label, path, draft, set, max, rows }) {
 }
 
 /** Template editor for a single document type: one flat form, no tabs. */
-export default function DocEditor({ E, dirty, canDelete, title, defaults, onCreate, set, onBack, onSave, onDelete, brand, presets }) {
+export default function DocEditor({ E, dirty, canDelete, title, defaults, hideDelete, onCreate, set, onBack, onSave, onDelete, brand, presets }) {
   const { type: p, draft, orig, mode } = E
   const d = draft[p]
   const create = mode === 'create'
@@ -176,7 +176,7 @@ export default function DocEditor({ E, dirty, canDelete, title, defaults, onCrea
       </div>
       <div className="efoot">
         <div className="bt">
-          {!defaults && (
+          {!defaults && !hideDelete && (
             <button className="btn del" onClick={onDelete} disabled={!canDelete} title={canDelete ? undefined : 'You need at least one template'}>
               <Icon>
                 <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />

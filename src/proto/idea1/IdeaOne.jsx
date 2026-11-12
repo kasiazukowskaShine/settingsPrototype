@@ -98,7 +98,7 @@ export default function IdeaOne({ toast, onClose }) {
     t.isDef = false
     t.updated = 'just now'
     t.quo.same = false
-    setE({ type, mode: 'create', draft: t, orig: clone(t) })
+    setE({ type, mode: 'create', fromDefaults: !!from, draft: t, orig: clone(t) })
     if (mcol.current) mcol.current.scrollTop = 0
   }
 
@@ -195,6 +195,7 @@ export default function IdeaOne({ toast, onClose }) {
         canDelete={E.mode === 'create' || saved.docs[E.type].length > 1}
         title={TITLE[E.type]}
         defaults={!!E.defaults}
+        hideDelete={!!E.fromDefaults}
         onCreate={() => openCreate(E.type, E.draft)}
         set={set}
         onBack={() => askDiscard(backToList)}
