@@ -1,0 +1,546 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Template Settings Prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: invoices app behind a full-viewport settings modal; templates list and a tabbed editor with live paper preview live inside the modal. */
+:root{
+  --bg:#ffffff;--bg-2:#f6f8f7;--bg-3:#eceef1;--card:#ffffff;
+  --fg:#14171c;--fg-2:#5b6470;--fg-3:#8a929d;
+  --line:#e3e6ea;--line-2:#cfd4da;
+  --accent:#2d4bd8;--accent-soft:#e8ecfd;--accent-fg:#2540c4;--toggle:#3d5fe0;
+  --dark:#1d2025;--on-dark:#ffffff;
+  --danger:#c93a3a;--ok:#1f9d55;--warn:#e9b400;--info:#4a7bf0;--hl:#fff3c4;
+  --overlay:rgba(20,23,28,.45);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14161a;--bg-2:#1a1d22;--bg-3:#262a31;--card:#1b1e23;
+  --fg:#eef0f3;--fg-2:#aab1bb;--fg-3:#7d8591;
+  --line:#2b2f36;--line-2:#3a3f48;
+  --accent:#7f98ff;--accent-soft:#232a4d;--accent-fg:#a9b9ff;--toggle:#6f8cff;
+  --dark:#eef0f3;--on-dark:#14161a;
+  --danger:#ff7b7b;--ok:#46c07d;--warn:#f2c230;--info:#7f98ff;--hl:#4a4220;
+  --overlay:rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14161a;--bg-2:#1a1d22;--bg-3:#262a31;--card:#1b1e23;
+  --fg:#eef0f3;--fg-2:#aab1bb;--fg-3:#7d8591;
+  --line:#2b2f36;--line-2:#3a3f48;
+  --accent:#7f98ff;--accent-soft:#232a4d;--accent-fg:#a9b9ff;--toggle:#6f8cff;
+  --dark:#eef0f3;--on-dark:#14161a;
+  --danger:#ff7b7b;--ok:#46c07d;--warn:#f2c230;--info:#7f98ff;--hl:#4a4220;
+  --overlay:rgba(0,0,0,.6);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{margin:0;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;border:0;background:var(--bg-3);color:var(--fg);font-weight:500;white-space:nowrap}
+.btn:hover{filter:brightness(.97)}
+.btn.dark{background:var(--dark);color:var(--on-dark)}
+.btn.sm{height:34px;padding:0 14px;font-size:13px}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:inline-grid;place-items:center}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- invoices app ---------- */
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.side{background:var(--bg-2);padding:20px 16px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line)}
+.co{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;font-weight:600}
+.co b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent-fg);font-size:12px}
+.nv{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;color:var(--fg);font-weight:500}
+.nv.sub{padding-left:42px}
+.nv.on{background:var(--bg-3)}
+.nv .ch{margin-left:auto;color:var(--fg-3)}
+.main{padding:28px 32px 40px;min-width:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.top h1{font-size:28px;letter-spacing:-.01em}
+.top .acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-bottom:28px}
+.kpi{border:1px solid var(--line);border-radius:20px;padding:16px 18px}
+.kpi .l{display:flex;align-items:center;gap:8px;color:var(--fg-2);font-size:13px}
+.kpi .n{padding:1px 9px;border-radius:999px;font-weight:500;font-size:13px;background:var(--bg-3);color:var(--fg)}
+.kpi .v{font-size:26px;font-weight:600;margin-top:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi .v small{font-size:13px;font-weight:400;color:var(--fg-2)}
+.kpi.dr .n{background:#e3e9fc;color:#2d4bd8}.kpi.up .n{background:#fdf3c4;color:#7a5d00}.kpi.pd .n{background:#d9f3e3;color:#17703c}.kpi.ov .n{background:#fbdcdc;color:#a02a2a}
+.listbar{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.listbar h2{font-size:18px;display:flex;align-items:center;gap:8px}
+.cntb{padding:1px 9px;border-radius:999px;font-size:13px;background:var(--bg-3)}
+.search{display:flex;align-items:center;gap:10px;height:44px;padding:0 16px;border:1px solid var(--line);border-radius:999px;min-width:260px;color:var(--fg-3)}
+.tablewrap{border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+table.tb{width:100%;border-collapse:collapse;min-width:760px}
+.tb th{text-align:left;font-weight:600;padding:16px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tb td{padding:18px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tb tr:last-child td{border-bottom:0}
+.tb .r{text-align:right}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%}
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:16px;color:var(--fg-2);font-size:13px;gap:12px;flex-wrap:wrap}
+
+/* ---------- settings modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;grid-template-columns:270px minmax(0,1fr);padding-top:env(safe-area-inset-top,0px);transition:grid-template-columns .35s cubic-bezier(.4,0,.2,1)}
+.modal[hidden]{display:none}
+.modal.focus{grid-template-columns:0px minmax(0,1fr)}
+.modal.focus .snav{transform:translateX(-100%);opacity:0;visibility:hidden;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s,visibility 0s .35s}
+.modal.focus .ehead,.modal.focus .egrid,.modal.focus .efoot{padding-left:max(40px,calc((100% - 960px)/2));padding-right:max(40px,calc((100% - 960px)/2))}
+.snav{background:var(--bg-2);padding:24px 14px;border-right:1px solid var(--line);overflow-y:auto;width:270px;min-width:0;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s .1s}
+.snav h3{font-size:15px;color:var(--fg-2);font-weight:500;padding:0 10px 14px}
+.sinp{display:flex;align-items:center;gap:10px;height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg);margin-bottom:12px}
+.sinp input{border:0;background:transparent;outline:0;width:100%;min-width:0}
+.sinp:focus-within{border-color:var(--accent)}
+.sgrp{display:flex;align-items:center;gap:12px;padding:10px;font-weight:600}
+.sgrp .ch{margin-left:auto;color:var(--fg-3)}
+.sit{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 10px 9px 44px;border-radius:10px;font-weight:500}
+.sit:hover{background:var(--bg-3)}
+.sit.on{background:var(--bg-3)}
+.dd{position:absolute;left:14px;top:112px;width:400px;max-width:calc(100% - 28px);z-index:70;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:0 12px 32px rgba(20,23,28,.18)}
+.dd[hidden]{display:none}
+.dd .row{padding:10px 12px;border-radius:12px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.dd .row.on,.dd .row:hover{background:var(--bg-2)}
+.dd .row b{font-weight:500;font-size:15px;display:block}
+.dd .row span{color:var(--fg-2);font-size:13px}
+.dd .tag{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg-3);color:var(--fg-2);white-space:nowrap}
+.dd .none{padding:14px 12px;color:var(--fg-2)}
+.mcol{position:relative;min-width:0;overflow-y:auto;height:100vh;height:100dvh}
+#view{min-height:100%;display:flex;flex-direction:column}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:28px 40px 0;flex-wrap:wrap}
+.mhead h2{font-size:28px;letter-spacing:-.01em}
+.xbtn{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:16px;z-index:60;width:36px;height:36px;border:0;background:transparent;border-radius:50%;display:grid;place-items:center}
+.xbtn:hover{background:var(--bg-3)}
+.lgrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;padding:26px 40px 48px;align-items:start}
+.tcard{display:flex;align-items:center;gap:16px;padding:14px 16px;border:1px solid var(--line);border-radius:20px;width:100%;background:var(--bg);text-align:left;margin-bottom:12px}
+.tcard:hover,.tcard.on{background:var(--bg-2);border-color:var(--line-2)}
+.thumb{width:56px;height:79px;border:1px solid var(--line);border-radius:4px;background:#fff;padding:6px;display:flex;flex-direction:column;gap:3px;flex:none}
+.thumb i{display:block;height:3px;border-radius:2px;background:#d9dde3}
+.thumb i.b{background:#2d4bd8;height:5px}
+.thumb i.s{width:50%}
+.tcard .nm{font-size:17px;font-weight:500}
+.tcard .su{color:var(--fg-2);font-size:13px;margin-top:2px}
+.tcard .bd{margin-left:auto;font-size:13px;font-weight:500;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent-fg)}
+.pvp{background:var(--bg-2);border-radius:24px;padding:18px;position:sticky;top:16px}
+.pvp .seg{margin:0 auto 16px}
+.pvp .pw{width:min(100%,max(220px,calc((100dvh - 215px)*0.7071)))}
+.pvp.ed{top:156px}
+.pvp.ed .pw{width:min(100%,max(220px,calc((100dvh - 335px)*0.7071)))}
+.seg{display:flex;width:max-content;background:var(--bg-3);border-radius:999px;padding:4px}
+.seg button{border:0;background:transparent;padding:7px 18px;border-radius:999px;font-weight:500;color:var(--fg-2)}
+.seg button.on{background:var(--bg);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+/* editor */
+.ehead{position:sticky;top:0;z-index:4;background:var(--bg);padding:26px 40px 0}
+.ehead h2{font-size:28px;letter-spacing:-.01em;display:flex;align-items:center;gap:16px}
+.ehead .sl{color:var(--fg-2);font-weight:500}
+.back{width:44px;height:44px;border-radius:50%;border:0;background:var(--bg-3);display:grid;place-items:center;flex:none}
+.tabs{display:flex;gap:4px;margin-top:22px;border-bottom:2px solid var(--line);width:max-content;max-width:100%}
+.tab{border:0;background:transparent;padding:10px 22px 12px;font-size:16px;color:var(--fg-2);margin-bottom:-2px;border-bottom:3px solid transparent}
+.tab.on{color:var(--fg);font-weight:500;border-bottom-color:var(--accent)}
+.egrid{flex:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:40px;padding:22px 40px 32px;align-items:start}
+.fld{margin:0 -12px 22px;padding:6px 12px 8px;border-radius:12px;transition:background .6s}
+.fld.hl{background:var(--hl)}
+.fl{display:block;font-weight:500;margin-bottom:8px}
+.inp,.sel,.ta{width:100%;border:1px solid var(--line-2);border-radius:10px;background:var(--bg);padding:0 14px;height:48px;outline:0}
+.ta{height:auto;min-height:72px;padding:12px 14px;resize:vertical}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.inp.err{border-color:var(--danger)}
+.sel:disabled,.ta:disabled{background:var(--bg-3);color:var(--fg-3)}
+.cnt{color:var(--fg-2);font-size:13px;margin-top:6px;font-variant-numeric:tabular-nums}
+.cnt.max{color:var(--danger)}
+.errt{color:var(--danger);font-size:13px;margin-top:6px}
+.box{background:var(--bg-2);border-radius:16px;padding:10px 22px}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0}
+.trow .rt{display:flex;align-items:center;gap:12px}
+.two{display:flex;gap:12px;flex-wrap:wrap}
+.two .sel{width:auto;min-width:240px}
+.sec{font-size:20px;font-weight:500;margin:34px 0 14px;letter-spacing:-.005em}
+.sec.first{margin-top:8px}
+.pvh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.pvh span{font-size:18px;font-weight:500}
+.pvp .pvh .seg{margin:0}
+.tcf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.btn.wh{background:var(--bg)}
+.sw{position:relative;display:inline-block;width:44px;height:26px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;background:#4b5260;border-radius:999px;transition:background .15s}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw input:checked+span{background:var(--toggle)}
+.sw input:checked+span::after{transform:translateX(18px)}
+.sw input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.sw input:disabled{cursor:not-allowed}
+.sw input:disabled+span{opacity:.55}
+.help{color:var(--fg-2);font-size:13px;margin-top:6px}
+.efoot{position:sticky;bottom:0;z-index:4;background:var(--bg);border-top:1px solid var(--line);padding:14px 40px calc(14px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.efoot .st{color:var(--fg-2);font-size:13px}
+.efoot .st.d{color:var(--accent-fg)}
+.efoot .bt{display:flex;gap:10px}
+.dirtydot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:8px}
+.qsame{padding:14px 22px;background:var(--bg-2);border-radius:16px}
+
+/* paper preview (stays white in both themes, like a printed document) */
+.pw{width:100%;max-width:480px;margin:0 auto;aspect-ratio:210/297;position:relative;overflow:hidden;background:#fff;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
+.paper{position:absolute;top:0;left:0;width:380px;height:537px;transform-origin:0 0;overflow:hidden;background:#fff;color:#111;padding:26px 26px 16px;font-size:9px;line-height:1.35;display:flex;flex-direction:column;--pb:#2d4bd8}
+.paper .ph{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.paper .logo{background:var(--pb);color:#fff;font-size:6px;width:22px;height:22px;display:grid;place-items:center;border-radius:2px}
+.paper .tt{text-align:right}
+.paper .tt b{color:var(--pb);font-size:12px;text-transform:uppercase;font-weight:600;display:block}
+.paper .tt span{color:#8a8f98;font-size:7px}
+.paper .adr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 10px;font-size:7.5px}
+.paper .adr small{display:block;color:#8a8f98;font-size:6.5px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.paper .adr b{font-weight:600}
+.paper .ref{display:flex;gap:12px;flex-wrap:wrap;font-size:7px;color:#555;margin-bottom:8px}
+.paper .msg{font-size:8px;margin-bottom:8px;color:#222;word-break:break-word}
+.paper table{width:100%;border-collapse:collapse;font-size:7.5px}
+.paper th{background:var(--pb);color:#fff;text-align:right;padding:4px 5px;font-weight:600}
+.paper td{padding:4px 5px;text-align:right;border-bottom:1px solid #e6e8ec}
+.paper th:first-child,.paper td:first-child{text-align:left}
+.paper .tot{margin:10px 0 0 auto;width:60%;font-size:7.5px}
+.paper .tot div{display:flex;justify-content:space-between;gap:8px;padding:1.5px 0}
+.paper .tot .g{color:var(--pb);font-weight:600}
+.paper .tc{margin-top:10px;font-size:7px;color:#444;word-break:break-word}
+.paper .tc b{display:block;font-weight:600;font-size:7px;margin-bottom:1px}
+.paper .fo{margin-top:auto;border-top:1px solid #e1e3e7;padding-top:6px;font-size:6.5px;color:#8a8f98;word-break:break-word}
+.paper .fo p{margin:0 0 3px}
+.paper .fo .u{color:#333}
+
+/* misc */
+.dlg{position:fixed;inset:0;z-index:90;background:var(--overlay);display:grid;place-items:center;padding:16px}
+.dlg[hidden]{display:none}
+.dlg .bx{background:var(--bg);border-radius:20px;padding:24px;width:min(420px,100%);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.dlg h3{font-size:18px;margin-bottom:6px}
+.dlg p{margin:0 0 20px;color:var(--fg-2)}
+.dlg .bt{display:flex;gap:10px;justify-content:flex-end}
+.toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--dark);color:var(--on-dark);padding:12px 20px;border-radius:999px;z-index:99;opacity:0;pointer-events:none;transition:all .25s;max-width:calc(100vw - 32px);font-weight:500}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.ph-page{padding:40px;color:var(--fg-2);max-width:520px}
+.ph-page h2{color:var(--fg);margin-bottom:8px}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}.side{display:none}
+  .main{padding:20px 16px 32px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .modal,.modal.focus{display:block;overflow-y:auto}
+  .snav{width:auto}
+  .modal.focus .snav{display:none}
+  .modal.focus .ehead,.modal.focus .egrid,.modal.focus .efoot{padding-left:16px;padding-right:16px}
+  .snav{border-right:0;border-bottom:1px solid var(--line);padding:16px;overflow:visible}
+  .dd{left:14px;right:14px;width:auto;max-width:none}
+  .mcol{height:auto;overflow:visible}
+  .lgrid,.egrid{grid-template-columns:1fr;padding-left:16px;padding-right:16px}
+  .mhead,.ehead{padding-left:16px;padding-right:16px}
+  .efoot{padding-left:16px;padding-right:16px}
+  .pvp{position:static}
+  .pvp .pw,.pvp.ed .pw{width:100%}
+  .tab{padding:10px 14px 12px}
+  .xbtn{background:var(--bg-3)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <aside class="side">
+    <div class="co"><b>AB</b>Company_name</div>
+    <div class="nv"><svg class="i" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/></svg>Business account<svg class="i ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="nv"><svg class="i" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg>Invoicing<svg class="i ch" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></div>
+    <div class="nv sub on">Invoices</div><div class="nv sub">Quotes</div><div class="nv sub">Items</div><div class="nv sub">Clients</div><div class="nv sub">Supplier e-invoices</div>
+    <div class="nv"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>Team<svg class="i ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="nv"><svg class="i" viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9h-9z"/></svg>Reports<svg class="i ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="nv"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Insurance</div>
+    <div class="nv"><svg class="i" viewBox="0 0 24 24"><path d="M8 12l3 3 5-6M3 12l4-4 5 1 5-1 4 4-8 8z"/></svg>Lending</div>
+  </aside>
+  <main class="main">
+    <div class="top"><h1>Invoices</h1>
+      <div class="acts">
+        <button class="icon-btn" id="gear" aria-label="Open invoicing settings"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
+        <button class="btn" data-na>Create deposit invoice</button>
+        <button class="btn dark" data-na>Create invoice</button>
+      </div></div>
+    <div class="kpis">
+      <div class="kpi"><div class="l"><span class="n">7</span>All Invoices</div><div class="v">1.081<small>,10 EUR</small></div></div>
+      <div class="kpi dr"><div class="l"><span class="n">1</span>Drafts</div><div class="v">100<small>,50 EUR</small></div></div>
+      <div class="kpi up"><div class="l"><span class="n">2</span>Unpaid</div><div class="v">116<small>,00 EUR</small></div></div>
+      <div class="kpi pd"><div class="l"><span class="n">2</span>Paid</div><div class="v">120<small>,00 EUR</small></div></div>
+      <div class="kpi ov"><div class="l"><span class="n">1</span>Overdue</div><div class="v">704<small>,60 EUR</small></div></div>
+      <div class="kpi"><div class="l"><span class="n">1</span>Cancelled</div><div class="v">40<small>,00 EUR</small></div></div>
+    </div>
+    <div class="listbar"><h2>All Invoices <span class="cntb">7</span></h2><div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Search by type, client…</div></div>
+    <div class="tablewrap"><table class="tb"><thead><tr><th></th><th>No.</th><th>Type</th><th>Client</th><th>Date</th><th>Due date</th><th>Description</th><th class="r">Excl. VAT</th><th></th></tr></thead><tbody>
+      <tr><td><span class="dot" style="background:#f0c400"></span></td><td>2026-06</td><td>Deposit Invoice</td><td>Atelier Dumontel</td><td>14/06/2026</td><td>14/07/2026</td><td>Visual identity</td><td class="r">74,00 EUR</td><td>···</td></tr>
+      <tr><td><span class="dot" style="background:#c93a3a"></span></td><td>2026-05</td><td>Invoice</td><td>Nova Consulting</td><td>03/06/2026</td><td>03/07/2026</td><td>Logos</td><td class="r">704,60 EUR</td><td>···</td></tr>
+      <tr><td><span class="dot" style="background:#4a7bf0"></span></td><td>—</td><td>Invoice</td><td>Éditions Ferrand</td><td>01/06/2026</td><td>27/06/2026</td><td>Glossy paper</td><td class="r">100,50 EUR</td><td>···</td></tr>
+      <tr><td><span class="dot" style="background:#f0c400"></span></td><td>2026-04</td><td>Invoice</td><td>Green Loop SAS</td><td>27/05/2026</td><td>27/06/2026</td><td>Typography</td><td class="r">42,00 EUR</td><td>···</td></tr>
+      <tr><td><span class="dot" style="background:#1f9d55"></span></td><td>2026-03</td><td>Credit note</td><td>Lumière &amp; Cie</td><td>11/05/2026</td><td>11/06/2026</td><td>Web design</td><td class="r">63,00 EUR</td><td>···</td></tr>
+      <tr><td><span class="dot" style="background:#1f9d55"></span></td><td>2026-02</td><td>Invoice</td><td>Marie Larsson</td><td>09/05/2026</td><td>09/06/2026</td><td>Optimisation UX</td><td class="r">57,00 EUR</td><td>···</td></tr>
+      <tr><td><span class="dot" style="background:#a0a6b0"></span></td><td>2026-01</td><td>Invoice</td><td>James Burton</td><td>01/04/2026</td><td>-</td><td>E-commerce</td><td class="r"><s>40,00 EUR</s></td><td>···</td></tr>
+    </tbody></table></div>
+    <div class="pager"><span>10 items per page</span><span>1 – 7 of 7</span></div>
+  </main>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-label="Settings">
+  <aside class="snav" id="snav">
+    <h3>Settings</h3>
+    <div class="sinp"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="sq" placeholder="Search" autocomplete="off" aria-label="Search settings"></div>
+    <div class="sgrp"><svg class="i" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg>Documents<svg class="i ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+    <button class="sit" data-page="Logo &amp; branding">Logo &amp; branding</button>
+    <button class="sit" data-page="Payments &amp; reminders">Payments &amp; reminders</button>
+    <button class="sit" data-page="Compliance">Compliance</button>
+    <button class="sit" data-page="Document presets">Document presets</button>
+    <button class="sit" data-page="E-invoices">E-invoices</button>
+    <button class="sit on" id="nav-tpl">Templates</button>
+  </aside>
+  <section class="mcol" id="mcol"><div id="view"></div></section>
+  <button class="xbtn" id="xbtn" aria-label="Close settings"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="dd" id="dd" hidden role="listbox"></div>
+</div>
+
+<div class="dlg" id="dlg" hidden><div class="bx" role="alertdialog" aria-labelledby="dlgt"><h3 id="dlgt">Discard changes?</h3><p id="dlgp"></p><div class="bt"><button class="btn" id="dkeep">Keep editing</button><button class="btn dark" id="ddisc">Discard</button></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+var $=function(s,r){return (r||document).querySelector(s)};
+var clone=function(o){return JSON.parse(JSON.stringify(o))};
+var MSG="Nous vous remercions de votre confiance. Veuillez trouver ci-dessous le détail de nos prestations.";
+var FOOT="Veuillez noter que la date d'échéance ne peut être modifiée.";
+var SK=['cols','refs','discLevel','discType','message','footer','tcOn','tc'];
+function shared(){return {cols:{date:true,qty:true,unit:true,price:true,vat:true,totalEx:true,totalInc:true},refs:{po:true,ref:true,cust:true},discLevel:'None',discType:'Percentage (%)',message:MSG,footer:FOOT,tcOn:false,tc:''}}
+var uid=1;
+function newTpl(name,isDef){var inv=shared();inv.title='Invoice';inv.approval=false;var quo=shared();quo.title='Quote';quo.validOn=true;quo.valid='30 days';quo.same=true;return {id:uid++,name:name,isDef:!!isDef,updated:'today',inv:inv,quo:quo}}
+var templates=[newTpl('Default template',true)];
+var S={view:'list',page:'',hover:0,pvList:'inv'};
+var E=null;
+var TYL={general:'General',inv:'Invoice',quo:'Quote'};
+
+var FIELDS=[
+{id:'name',label:'Template name',syn:'name',types:['general']},
+{id:'default',label:'Set as default',syn:'default',types:['general']},
+{id:'title',label:'Document title',syn:'invoice title quote title heading',types:['inv','quo']},
+{id:'valid',label:'Default quote validity',syn:'validity expiry expires valid',types:['quo']},
+{id:'cols',label:'Item columns',syn:'columns date quantity qty unit price vat total totals excluding including',types:['inv','quo'],sh:1},
+{id:'refs',label:'Reference fields',syn:'po purchase order buyer customer id reference',types:['inv','quo'],sh:1},
+{id:'disc',label:'Discounts',syn:'discount percentage',types:['inv','quo'],sh:1},
+{id:'message',label:'Default message',syn:'greeting intro note text',types:['inv','quo'],sh:1},
+{id:'footer',label:'Footer note',syn:'footnote',types:['inv','quo'],sh:1},
+{id:'tc',label:'Terms and conditions',syn:'t&c tc conditions legal',types:['inv','quo'],sh:1},
+{id:'approval',label:'Before invoice approval',syn:'approval review message',types:['inv']}];
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function getP(o,p){return p.split('.').reduce(function(a,k){return a==null?a:a[k]},o)}
+function setP(o,p,v){var a=p.split('.'),l=a.pop(),t=a.reduce(function(x,k){return x[k]},o);t[l]=v}
+function pick(o,ks){var r={};ks.forEach(function(k){r[k]=o[k]});return r}
+function fmt(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+function eff(t,type){
+  if(type==='inv')return Object.assign({},t.inv,{kind:'inv'});
+  var q=t.quo,b=q.same?pick(t.inv,SK):pick(q,SK);
+  return Object.assign({},b,{title:q.title,validOn:q.validOn,valid:q.valid,kind:'quo'})}
+function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('on')},2600)}
+function dirty(){return !!E&&JSON.stringify(E.draft)!==JSON.stringify(E.orig)}
+
+/* ---------- paper preview ---------- */
+function paper(s){
+  var q=s.kind==='quo',c=s.cols;
+  var heads=['Description'];if(c.date)heads.push('Date');if(c.qty)heads.push('Qty');if(c.unit)heads.push('Unit');if(c.price)heads.push('Unit price');if(c.vat)heads.push('VAT');heads.push('Amount');
+  var data=[['Consulting services','14/06/2026','1,00','day','1 000,00 €','20,00 %','1 000,00 €'],['Design work','14/06/2026','2,00','day','250,00 €','20,00 %','500,00 €']];
+  var rows=data.map(function(r){var o=[r[0]];if(c.date)o.push(r[1]);if(c.qty)o.push(r[2]);if(c.unit)o.push(r[3]);if(c.price)o.push(r[4]);if(c.vat)o.push(r[5]);o.push(r[6]);return '<tr>'+o.map(function(x){return '<td>'+x+'</td>'}).join('')+'</tr>'}).join('');
+  var pct=s.discType.indexOf('%')>-1;
+  var disc=s.discLevel==='None'?0:(pct?150:100);
+  var ht=1500-disc,vat=ht*0.2,ttc=ht+vat,L=[];
+  if(disc){L.push(['Subtotal',fmt(1500)]);L.push(['Discount',pct?'− 10,00 % · '+fmt(disc):'− '+fmt(disc)])}
+  if(c.totalEx)L.push(['Total HT',fmt(ht),c.totalInc?0:1]);
+  if(c.totalEx&&c.totalInc)L.push(['VAT 20,00 %',fmt(vat)]);
+  if(c.totalInc)L.push(['Total TTC',fmt(ttc),1]);
+  var refs=[];if(s.refs.po)refs.push('PO number: PO-2291');if(s.refs.ref)refs.push('Reference: REF-118');if(s.refs.cust)refs.push('Customer ID: C-0042');
+  var sub=q?('Issued 06/08/2026'+(s.validOn?' · Valid for '+s.valid:'')):'Issued 06/08/2026 · Due 05/09/2026';
+  return '<div class="pw"><div class="paper"><div class="ph"><div class="logo">LOGO</div><div class="tt"><b>'+esc(s.title||(q?'Quote':'Invoice'))+'</b><span>No. 12345</span><br><span>'+sub+'</span></div></div>'
+  +'<div class="adr"><div><small>From</small><b>Shine SAS</b><br>David Muehlfeld<br>12 Rue de Rivoli<br>75001 Paris, France</div><div><small>Bill to</small><b>Test Invoice Receiver</b><br>John Doe Street 12<br>11-111 City</div></div>'
+  +(refs.length?'<div class="ref">'+refs.map(function(x){return '<span>'+esc(x)+'</span>'}).join('')+'</div>':'')
+  +(s.message?'<div class="msg">'+esc(s.message)+'</div>':'')
+  +'<table><thead><tr>'+heads.map(function(h){return '<th>'+h+'</th>'}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>'
+  +'<div class="tot">'+L.map(function(l){return '<div'+(l[2]?' class="g"':'')+'><span>'+l[0]+'</span><span>'+l[1]+'</span></div>'}).join('')+'</div>'
+  +(s.tcOn&&s.tc.trim()?'<div class="tc"><b>Terms and conditions</b>'+esc(s.tc)+'</div>':'')
+  +'<div class="fo">'+(s.footer?'<p class="u">'+esc(s.footer)+'</p>':'')+'<p>Payment terms: 30 days. No early-payment discount. In case of late payment, a fixed recovery indemnity of €40 applies, plus penalties at 3× the legal interest rate.</p></div></div></div>'}
+function fit(){document.querySelectorAll('.pw').forEach(function(w){var p=w.firstChild;if(p&&w.clientWidth)p.style.transform='scale('+(w.clientWidth/380)+')'})}
+function thumb(){return '<div class="thumb"><i class="b"></i><i class="s"></i><i></i><i></i><i class="b" style="height:4px;margin-top:4px"></i><i></i><i></i><i class="s" style="margin-top:auto"></i></div>'}
+
+/* ---------- views ---------- */
+function render(){
+  $('#modal').classList.toggle('focus',S.view==='create');
+  var v=$('#view');
+  $('#nav-tpl').classList.toggle('on',S.view!=='page');
+  document.querySelectorAll('.sit[data-page]').forEach(function(b){b.classList.toggle('on',S.view==='page'&&b.dataset.page===S.page)});
+  if(S.view==='page'){v.innerHTML='<div class="ph-page"><h2>'+esc(S.page)+'</h2><p>This page is not part of the prototype. Use Templates in the left menu.</p></div>';return}
+  if(S.view==='list'){renderList();return}
+  renderEditor()}
+function renderList(){
+  var v=$('#view');
+  var cards=templates.map(function(t,i){return '<button class="tcard'+(i===S.hover?' on':'')+'" data-open="'+t.id+'" data-i="'+i+'">'+thumb()+'<div><div class="nm">'+esc(t.name)+'</div><div class="su">Last updated '+t.updated+'</div></div>'+(t.isDef?'<span class="bd">Default</span>':'')+'</button>'}).join('');
+  var t=templates[S.hover]||templates[0];
+  v.innerHTML='<div class="mhead"><h2>Templates</h2><button class="btn" id="mk" style="margin-right:56px"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Create template</button></div>'
+  +'<div class="lgrid"><div id="cards">'+cards+'</div><aside class="pvp"><div class="seg"><button data-pv="inv" class="'+(S.pvList==='inv'?'on':'')+'">Invoice</button><button data-pv="quo" class="'+(S.pvList==='quo'?'on':'')+'">Quote</button></div><div id="lpaper">'+paper(eff(t,S.pvList))+'</div></aside></div>';fit()}
+function openCreate(){
+  var t=newTpl('',false);t.updated='just now';
+  E={mode:'create',draft:t,orig:clone(t),tab:'general',pv:'inv',err:false};S.view='create';render()}
+function openEditor(id,tab,fieldId){
+  var t=templates.filter(function(x){return x.id===id})[0];
+  if(!(E&&E.mode==='edit'&&E.draft.id===id)){E={mode:'edit',draft:clone(t),orig:clone(t),tab:'inv',pv:'inv',err:false}}
+  S.view='edit';E.tab=tab||E.tab||'inv';if(E.tab!=='general')E.pv=E.tab;render();
+  var mc=$('#mcol');if(mc)mc.scrollTop=0;
+  if(fieldId){setTimeout(function(){var el=document.getElementById('f-'+fieldId);if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('hl');setTimeout(function(){el.classList.remove('hl')},1900)}},60)}}
+function sw(path,dis){return '<label class="sw"><input type="checkbox" data-p="'+path+'"'+(getP(E.draft,path)?' checked':'')+(dis?' disabled':'')+'><span></span></label>'}
+function tg(label,path){return '<div class="trow"><span>'+label+'</span>'+sw(path)+'</div>'}
+function sel(path,opts,dis){var v=getP(E.draft,path);return '<select class="sel" data-p="'+path+'"'+(dis?' disabled':'')+'>'+opts.map(function(o){return '<option'+(o===v?' selected':'')+'>'+o+'</option>'}).join('')+'</select>'}
+function ta(path,max,ph,dis){var v=getP(E.draft,path)||'';return '<textarea class="ta" rows="2" maxlength="'+max+'" data-p="'+path+'" data-max="'+max+'" placeholder="'+(ph||'')+'"'+(dis?' disabled':'')+'>'+esc(v)+'</textarea><div class="cnt" data-c="'+path+'">'+String(v.length).padStart(2,'0')+'/'+max+'</div>'}
+function sharedFields(p){
+  var d=E.draft[p],other=p==='inv'?'quotes':'invoices';
+  return '<h3 class="sec first">Line items</h3><div class="fld" id="f-'+p+'-cols"><span class="fl">Item columns</span><div class="box">'+tg('Date',p+'.cols.date')+tg('Quantity',p+'.cols.qty')+tg('Unit',p+'.cols.unit')+tg('Unit price',p+'.cols.price')+tg('VAT',p+'.cols.vat')+tg('Total excluding VAT',p+'.cols.totalEx')+tg('Total including VAT',p+'.cols.totalInc')+'</div></div>'
+  +'<h3 class="sec">References</h3>'
+  +'<div class="fld" id="f-'+p+'-refs"><span class="fl">Reference fields</span><div class="box">'+tg('Buyer’s PO number',p+'.refs.po')+tg('Buyer’s reference number',p+'.refs.ref')+tg('Customer ID',p+'.refs.cust')+'</div></div>'
+  +'<div class="fld" id="f-'+p+'-disc"><span class="fl">Discounts</span><div class="two">'+sel(p+'.discLevel',['None','Per line','On total'])+'<span id="dt-'+p+'"'+(d.discLevel==='None'?' hidden':'')+'>'+sel(p+'.discType',['Percentage (%)','Amount (€)'])+'</span></div></div>'
+  +'<h3 class="sec">Content</h3><div class="fld" id="f-'+p+'-message"><span class="fl">Default message</span>'+ta(p+'.message',250)+'</div>'
+  +'<div class="fld" id="f-'+p+'-footer"><span class="fl">Footer note</span>'+ta(p+'.footer',250)+'</div>'
+  +'<div class="fld" id="f-'+p+'-tc"><div class="trow" style="padding:0"><span class="fl" style="margin:0">Terms and Conditions</span>'+sw(p+'.tcOn')+'</div><div class="box" id="tcb-'+p+'"'+(d.tcOn?'':' hidden')+' style="margin-top:12px;padding:16px 18px"><textarea class="ta" rows="3" maxlength="250" data-p="'+p+'.tc" data-max="250" placeholder="Type" style="min-height:92px">'+esc(d.tc||'')+'</textarea><div class="tcf"><div class="cnt" data-c="'+p+'.tc" style="margin:0">'+String((d.tc||'').length).padStart(2,'0')+'/250</div><button class="btn sm wh" data-ins="'+p+'"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14h6M13 11l3 3-3 3"/></svg>Paste from '+other+'</button></div></div></div>'}
+function formHtml(){
+  var t=E.draft,tab=E.tab;
+  if(tab==='general'){
+    var lock=t.isDef&&E.orig.isDef;
+    return '<div class="fld" id="f-name"><label class="fl" for="nm">Template name</label><input class="inp'+(E.err?' err':'')+'" id="nm" data-p="name" placeholder="Type" value="'+esc(t.name)+'" maxlength="60" autocomplete="off">'+(E.err?'<div class="errt" id="nmerr">Enter a template name</div>':'')+'</div>'
+    +'<div class="fld" id="f-default"><div class="trow" style="padding:0"><span style="font-weight:500">Set as default</span>'+sw('isDef',lock)+'</div><div class="help">'+(lock?'This is your default template. Set another template as default to change it.':'New invoices and quotes start from your default template.')+'</div></div>'}
+  if(tab==='inv'){
+    return '<div class="fld" id="f-inv-title"><label class="fl" for="it">Document title</label><input class="inp" id="it" data-p="inv.title" value="'+esc(t.inv.title)+'" maxlength="40"></div>'+sharedFields('inv')
+    +'<div class="fld" id="f-approval"><div class="trow" style="padding:0"><span class="fl" style="margin:0">Show message “Review before approving”</span>'+sw('inv.approval')+'</div></div>'}
+  return '<div class="fld" id="f-quo-title"><label class="fl" for="qt">Document title</label><input class="inp" id="qt" data-p="quo.title" value="'+esc(t.quo.title)+'" maxlength="40"></div>'
+  +'<div class="fld" id="f-valid"><div class="trow" style="padding:0"><span class="fl" style="margin:0">Default quote validity</span>'+sw('quo.validOn')+'</div><div class="box" id="vbox"'+(t.quo.validOn?'':' hidden')+' style="margin-top:12px;padding:14px 18px">'+sel('quo.valid',['14 days','30 days','60 days'])+'</div></div>'
+  +'<div class="fld" id="f-same"><div class="qsame"><div class="trow" style="padding:0"><span style="font-weight:500">Use the same defaults as for the invoice</span>'+sw('quo.same')+'</div><div class="help">Columns, totals, references, discounts, message, footer, and terms follow the invoice tab.</div></div></div>'
+  +'<div id="qshared"'+(t.quo.same?' hidden':'')+'>'+sharedFields('quo')+'</div>'}
+function statusHtml(){return dirty()?'<span class="st d"><span class="dirtydot"></span>Unsaved changes</span>':'<span class="st">Applies to new documents only. Drafts and issued documents don’t change.</span>'}
+function renderEditor(){
+  var v=$('#view'),create=E.mode==='create';
+  var title=create?'Create a template':'<span class="sl">Templates /</span> '+esc(E.orig.name);
+  v.innerHTML='<div class="ehead"><h2><button class="back" id="bk" aria-label="Back to templates"><svg class="i" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><span id="etitle">'+title+'</span></h2>'
+  +'<div class="tabs" role="tablist">'+['general','inv','quo'].map(function(k){return '<button class="tab'+(E.tab===k?' on':'')+'" data-tab="'+k+'" role="tab">'+TYL[k]+'</button>'}).join('')+'</div></div>'
+  +'<div class="egrid"><div id="form">'+formHtml()+'</div><aside class="pvp ed"><div class="pvh"><span>Live preview</span><div class="seg" id="eseg"><button data-pv="inv" class="'+(E.pv==='inv'?'on':'')+'">Invoice</button><button data-pv="quo" class="'+(E.pv==='quo'?'on':'')+'">Quote</button></div></div><div id="epaper"></div></aside></div>'
+  +'<div class="efoot"><div id="est">'+statusHtml()+'</div><div class="bt"><button class="btn" id="dis">Discard</button><button class="btn dark" id="sv">'+(create?'Save template':'Save changes')+'</button></div></div>';
+  paintPaper()}
+function paintPaper(){var p=$('#epaper');if(p)p.innerHTML=paper(eff(E.draft,E.pv));var s=$('#est');if(s)s.innerHTML=statusHtml();fit()}
+
+/* ---------- actions ---------- */
+function showModal(){$('#modal').hidden=false;document.body.style.overflow='hidden'}
+function hideModal(){$('#modal').hidden=true;document.body.style.overflow='';E=null;S.view='list';$('#sq').value='';closeDD()}
+function askDiscard(next){
+  if(!dirty()){next();return}
+  $('#dlgp').textContent=E.mode==='create'?'Your new template hasn’t been saved.':'Changes to “'+E.orig.name+'” haven’t been saved.';
+  $('#dlg').hidden=false;
+  $('#dkeep').onclick=function(){$('#dlg').hidden=true};
+  $('#ddisc').onclick=function(){$('#dlg').hidden=true;next()}}
+function backToList(){E=null;S.view='list';render()}
+function save(){
+  var d=E.draft;
+  if(!d.name.trim()){E.err=true;E.tab='general';renderEditor();var n=$('#nm');if(n)n.focus();return}
+  d.name=d.name.trim();d.updated='just now';
+  if(d.isDef)templates.forEach(function(x){x.isDef=false});
+  if(E.mode==='create'){
+    templates.push(clone(d));
+    if(!templates.some(function(x){return x.isDef}))templates[0].isDef=true;
+    toast('Template saved. It now appears when you create a document.');
+    E=null;S.view='list';S.hover=templates.length-1;render();return}
+  var i=templates.map(function(x){return x.id}).indexOf(d.id);templates[i]=clone(d);
+  if(!templates.some(function(x){return x.isDef}))templates[0].isDef=true;
+  E.orig=clone(d);E.draft=clone(d);toast('Template saved. Changes apply to new documents.');
+  var h=$('#etitle');if(h)h.innerHTML='<span class="sl">Templates /</span> '+esc(d.name);
+  paintPaper()}
+
+/* ---------- search ---------- */
+var sres=[],sact=0;
+function search(q){
+  var t=q.toLowerCase().split(/\s+/).filter(Boolean);if(!t.length)return[];
+  var tt=[],ft=[];
+  t.forEach(function(w){var m=w.length>2&&templates.some(function(x){return x.name.toLowerCase().split(/\s+/).some(function(p){return p.indexOf(w)===0})});(m?tt:ft).push(w)});
+  var out=[];
+  var def=templates.filter(function(x){return x.isDef})[0]||templates[0];
+  var scopeT=def;
+  if(tt.length){templates.forEach(function(x){if(tt.every(function(w){return x.name.toLowerCase().indexOf(w)>-1}))scopeT=x})}
+  if(!ft.length&&tt.length){
+    templates.forEach(function(x){if(tt.every(function(w){return x.name.toLowerCase().indexOf(w)>-1}))out.push({title:x.name,path:'Templates',tpl:x.id,tab:'inv',tag:x.isDef?'Default':''})});
+    return out}
+  FIELDS.forEach(function(f){
+    var hay=(f.label+' '+f.syn).toLowerCase();
+    if(!ft.every(function(w){return hay.indexOf(w)>-1}))return;
+    f.types.forEach(function(ty){
+      var fid=f.id==='title'?(ty+'-title'):(f.sh?(ty+'-'+f.id):f.id);
+      var r={title:f.id==='title'?(ty==='inv'?'Invoice title':'Quote title'):f.label,path:'Templates › '+scopeT.name+' › '+TYL[ty],tpl:scopeT.id,tab:ty,field:fid};
+      if(f.sh&&ty==='quo'&&scopeT.quo.same){r.field='same';r.tag='Uses invoice defaults'}
+      out.push(r)})});
+  return out.slice(0,8)}
+function drawDD(){
+  var dd=$('#dd'),q=$('#sq').value;
+  if(!q.trim()){dd.hidden=true;return}
+  dd.hidden=false;
+  if(!sres.length){dd.innerHTML='<div class="none">No results for “'+esc(q)+'”. Try “footer”, “message”, or a template name.</div>';return}
+  dd.innerHTML=sres.map(function(r,i){return '<div class="row'+(i===sact?' on':'')+'" data-i="'+i+'" role="option"><div><b>'+esc(r.title)+'</b><span>'+esc(r.path)+'</span></div>'+(r.tag?'<span class="tag">'+esc(r.tag)+'</span>':'')+'</div>'}).join('')}
+function closeDD(){$('#dd').hidden=true;sres=[]}
+function gotoRes(r){
+  var go=function(){$('#sq').value='';closeDD();if(E&&E.draft.id!==r.tpl)E=null;openEditor(r.tpl,r.tab,r.field)};
+  if(E&&E.draft.id!==r.tpl&&dirty()){askDiscard(go)}else go()}
+
+/* ---------- events ---------- */
+$('#gear').onclick=function(){S.view='list';showModal();render()};
+document.querySelectorAll('[data-na]').forEach(function(b){b.onclick=function(){toast('Not part of this prototype')}});
+$('#xbtn').onclick=function(){askDiscard(hideModal)};
+$('#nav-tpl').onclick=function(){askDiscard(function(){E=null;S.view='list';render()})};
+document.querySelectorAll('.sit[data-page]').forEach(function(b){b.onclick=function(){askDiscard(function(){E=null;S.view='page';S.page=b.dataset.page;render()})}});
+var sq=$('#sq');
+sq.addEventListener('input',function(){sres=search(sq.value);sact=0;drawDD()});
+sq.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'&&sres.length){sact=(sact+1)%sres.length;drawDD();e.preventDefault()}
+  else if(e.key==='ArrowUp'&&sres.length){sact=(sact+sres.length-1)%sres.length;drawDD();e.preventDefault()}
+  else if(e.key==='Enter'&&sres.length){gotoRes(sres[sact])}
+  else if(e.key==='Escape'&&sq.value){sq.value='';closeDD();e.stopPropagation()}});
+$('#dd').addEventListener('mousedown',function(e){e.preventDefault();var r=e.target.closest('.row');if(r&&r.dataset.i!==undefined)gotoRes(sres[+r.dataset.i])});
+sq.addEventListener('blur',function(){setTimeout(function(){$('#dd').hidden=true},120)});
+sq.addEventListener('focus',function(){if(sq.value.trim()){sres=search(sq.value);drawDD()}});
+
+window.addEventListener('resize',fit);
+var view=$('#view');
+view.addEventListener('click',function(e){
+  var c=e.target.closest('[data-open]');if(c){openEditor(+c.dataset.open,'inv');return}
+  if(e.target.closest('#mk')){openCreate();return}
+  if(e.target.closest('#bk')||e.target.closest('#dis')){askDiscard(backToList);return}
+  if(e.target.closest('#sv')){save();return}
+  var tb=e.target.closest('[data-tab]');
+  if(tb){E.tab=tb.dataset.tab;if(E.tab!=='general')E.pv=E.tab;
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x.dataset.tab===E.tab)});
+    $('#form').innerHTML=formHtml();
+    document.querySelectorAll('#eseg button').forEach(function(x){x.classList.toggle('on',x.dataset.pv===E.pv)});
+    paintPaper();return}
+  var pv=e.target.closest('[data-pv]');
+  if(pv){
+    if(pv.closest('#eseg')){E.pv=pv.dataset.pv;document.querySelectorAll('#eseg button').forEach(function(x){x.classList.toggle('on',x===pv)});paintPaper()}
+    else{S.pvList=pv.dataset.pv;renderList()}
+    return}
+  var ins=e.target.closest('[data-ins]');
+  if(ins){var p=ins.dataset.ins,o=p==='inv'?'quo':'inv',src=(o==='quo'&&E.draft.quo.same)?E.draft.inv:E.draft[o];E.draft[p].tc=src.tc;E.draft[p].tcOn=true;$('#form').innerHTML=formHtml();paintPaper();toast('Terms copied from '+(o==='inv'?'invoices':'quotes'))}});
+view.addEventListener('mouseover',function(e){
+  var c=e.target.closest('.tcard');if(!c||S.view!=='list')return;var i=+c.dataset.i;if(i===S.hover)return;S.hover=i;
+  document.querySelectorAll('.tcard').forEach(function(x){x.classList.toggle('on',+x.dataset.i===i)});$('#lpaper').innerHTML=paper(eff(templates[i],S.pvList));fit()});
+function onField(e){
+  var el=e.target,p=el.dataset&&el.dataset.p;if(!p||!E)return;
+  var val=el.type==='checkbox'?el.checked:el.value;
+  setP(E.draft,p,val);
+  if(p==='name'&&E.err&&val.trim()){E.err=false;el.classList.remove('err');var er=$('#nmerr');if(er)er.remove()}
+  if(el.dataset.max){var c=document.querySelector('[data-c="'+p+'"]');if(c){c.textContent=String(val.length).padStart(2,'0')+'/'+el.dataset.max;c.classList.toggle('max',val.length>=+el.dataset.max)}}
+  if(p==='quo.same'){$('#qshared').hidden=val}
+  if(p==='quo.validOn'){var vb=document.getElementById('vbox');if(vb)vb.hidden=!val}
+  var m=p.match(/^(inv|quo)\.discLevel$/);if(m){var s2=document.getElementById('dt-'+m[1]);if(s2)s2.hidden=(val==='None')}
+  m=p.match(/^(inv|quo)\.tcOn$/);if(m){var t2=document.getElementById('tcb-'+m[1]);if(t2)t2.hidden=!val}
+  paintPaper()}
+view.addEventListener('input',onField);
+view.addEventListener('change',onField);
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(!$('#dlg').hidden){$('#dlg').hidden=true;return}
+  if(!$('#dd').hidden){sq.value='';closeDD();return}
+  if($('#modal').hidden)return;
+  if(S.view==='edit'||S.view==='create'){askDiscard(backToList);return}
+  askDiscard(hideModal)});
+})();
+</script>
+
+</body></html>
