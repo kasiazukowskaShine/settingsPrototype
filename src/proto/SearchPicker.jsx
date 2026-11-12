@@ -4,7 +4,6 @@ import './picker.css'
 
 const NAMES = {
   i: ['Idea 1', 'Idea 2'],
-  c: ['Sidebar steps', 'Tabs (current)', 'Split screen'],
   d: ['Create from default', 'Start from a template'],
 }
 

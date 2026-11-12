@@ -1,13 +1,12 @@
 import { useSyncExternalStore } from 'react'
 
 // Active prototype variants (1-based), one per prototype, persisted in the URL so a reload keeps them.
-//   c -> ?c=  template creation flow
 //   i -> ?i=  settings structure (Idea 1 vs Idea 2)
 //   d -> ?d=  Idea 1 Invoices/Quotes entry: create from default vs start from a template
-const PARAMS = { c: 'c', i: 'i', d: 'd' }
+const PARAMS = { i: 'i', d: 'd' }
 const params = new URLSearchParams(location.search)
 const state = {}
-const MAX = { c: 3, i: 2, d: 2 } // variants per prototype
+const MAX = { i: 2, d: 2 } // variants per prototype
 for (const k of Object.keys(PARAMS)) state[k] = Math.min(MAX[k], Math.max(1, parseInt(params.get(PARAMS[k]), 10) || 1))
 const listeners = new Set()
 

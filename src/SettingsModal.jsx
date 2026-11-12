@@ -4,17 +4,10 @@ import TemplateList from './TemplateList.jsx'
 import TemplateEditor from './TemplateEditor.jsx'
 import SpotlightSearch from './SpotlightSearch.jsx'
 import { clone, newTpl, setP } from './data.js'
-// PROTO:create-steps start
-import { useVariant, PROTO } from './proto/store.js'
-import ProtoPicker from './proto/SearchPicker.jsx'
-import { StepsNav, StepsEditor } from './proto/StepsCreate.jsx'
-import SplitCreate from './proto/SplitCreate.jsx'
-// PROTO:create-steps end
 
 const PAGES = ['Logo & branding', 'Payments & reminders', 'Compliance', 'E-invoices']
 
 export default function SettingsModal({ templates, setTemplates, toast, onClose }) {
-  const createVariant = useVariant('c') // PROTO:create-steps
   const [view, setView] = useState('list') // list | edit | create | page
   const [page, setPage] = useState('')
   const [hover, setHover] = useState(0)
@@ -124,14 +117,10 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
   }, [])
 
   const inTemplates = view !== 'page'
-  const protoSteps = PROTO && view === 'create' && createVariant === 1 // PROTO:create-steps
-  const protoSplit = PROTO && view === 'create' && createVariant === 3 // PROTO:create-steps
 
   return (
     <>
-      <div className={'modal' + (view === 'create' && !protoSteps ? ' focus' : '')} role="dialog" aria-modal="true" aria-label="Settings">
-        {/* PROTO:create-steps start */}
-        {protoSteps ? <StepsNav E={E} setTab={setTab} /> : (
+      <div className={'modal' + (view === 'create' ? ' focus' : '')} role="dialog" aria-modal="true" aria-label="Settings">
         <aside className="snav">
           <h3>Settings</h3>
           <SpotlightSearch templates={templates} onPick={gotoRes} />
@@ -157,8 +146,6 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
             Templates
           </button>
         </aside>
-        )}
-        {/* PROTO:create-steps end */}
 
         <section className="mcol" ref={mcol}>
           <div id="view">
@@ -180,32 +167,7 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
                 onClose={() => askDiscard(onClose)}
               />
             )}
-            {/* PROTO:create-steps start */}
-            {protoSteps && E && (
-              <StepsEditor
-                E={E}
-                set={set}
-                setTab={setTab}
-                onPaste={paste}
-                onBack={() => askDiscard(backToList)}
-                onSave={save}
-                onClose={() => askDiscard(onClose)}
-                onNameError={() => setE((e) => ({ ...e, err: true }))}
-              />
-            )}
-            {protoSplit && E && (
-              <SplitCreate
-                E={E}
-                set={set}
-                setTab={setTab}
-                setPv={setPv}
-                onPaste={paste}
-                onDiscard={() => askDiscard(backToList)}
-                onSave={save}
-              />
-            )}
-            {/* PROTO:create-steps end */}
-            {(view === 'edit' || (view === 'create' && !protoSteps && !protoSplit)) && E && (
+            {(view === 'edit' || view === 'create') && E && (
               <TemplateEditor
                 E={E}
                 dirty={dirty}
@@ -227,10 +189,6 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
         </button>
 
       </div>
-
-      {/* PROTO:create-steps start */}
-      {PROTO && view === 'create' && <ProtoPicker kind="c" level={1} />}
-      {/* PROTO:create-steps end */}
 
       {dlg && (
         <div className="dlg">
