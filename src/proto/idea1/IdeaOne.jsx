@@ -200,18 +200,19 @@ export default function IdeaOne({ toast, onClose }) {
         set={set}
         onBack={() => askDiscard(backToList)}
         onSave={saveTemplate}
+        onClose={() => askDiscard(onClose)}
         onDelete={deleteTemplate}
         {...shared}
       />
     )
   } else if (page === 'brand') {
-    body = <BrandPage draft={bDraft} setDraft={setBDraft} dirty={brandDirty} onSave={saveBrand} onDiscard={() => setBDraft(saved.brand)} presets={saved.presets} />
+    body = <BrandPage draft={bDraft} setDraft={setBDraft} dirty={brandDirty} onSave={saveBrand} onDiscard={() => setBDraft(saved.brand)} onClose={() => askDiscard(onClose)} presets={saved.presets} />
   } else if (page === 'presets') {
-    body = <PresetsPage draft={pDraft} setDraft={setPDraft} dirty={presetsDirty} onSave={savePresets} onDiscard={() => setPDraft(saved.presets)} brand={saved.brand} />
+    body = <PresetsPage draft={pDraft} setDraft={setPDraft} dirty={presetsDirty} onSave={savePresets} onDiscard={() => setPDraft(saved.presets)} onClose={() => askDiscard(onClose)} brand={saved.brand} />
   } else if (onlyDefault) {
     body = null // the defaults editor is set up by the effect above
   } else if (isDocPage) {
-    body = <DocList type={page} title={TITLE[page]} list={saved.docs[page]} onOpen={(id) => openEditor(page, id)} onCreate={() => openCreate(page)} {...shared} />
+    body = <DocList type={page} title={TITLE[page]} list={saved.docs[page]} onOpen={(id) => openEditor(page, id)} onCreate={() => openCreate(page)} onClose={() => askDiscard(onClose)} {...shared} />
   } else {
     body = (
       <div className="ph-page">
@@ -223,7 +224,7 @@ export default function IdeaOne({ toast, onClose }) {
 
   return (
     <>
-      <div className="modal" role="dialog" aria-modal="true" aria-label="Settings">
+      <div className={'modal'} role="dialog" aria-modal="true" aria-label="Settings">
         <aside className="snav">
           <h3>Settings</h3>
           <div className="sgrp">
@@ -267,8 +268,7 @@ export default function IdeaOne({ toast, onClose }) {
         </div>
       )}
 
-      <ProtoPicker kind="i" />
-      {isDocPage && !(E && !E.defaults) && <ProtoPicker kind="d" stacked />}
+      {isDocPage && !(E && !E.defaults) && <ProtoPicker kind="d" level={1} />}
     </>
   )
 }

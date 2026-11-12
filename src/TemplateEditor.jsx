@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Paper from './Paper.jsx'
 import GeneralPresets from './GeneralPresets.jsx'
+import ListLayout from './ListLayout.jsx'
 import Icon, { ICONS } from './Icon.jsx'
 import { TYL, eff, getP } from './data.js'
 
@@ -216,7 +217,7 @@ export function Form({ E, set, hl, onPaste, nameRef }) {
   )
 }
 
-export default function TemplateEditor({ E, dirty, set, setTab, setPv, onPaste, onBack, onSave, focusField }) {
+export default function TemplateEditor({ E, set, setTab, setPv, onPaste, onBack, onSave, onClose, focusField }) {
   const create = E.mode === 'create'
   const [hl, setHl] = useState(null)
   const nameRef = useRef(null)
@@ -241,15 +242,40 @@ export default function TemplateEditor({ E, dirty, set, setTab, setPv, onPaste, 
     if (E.err && nameRef.current) nameRef.current.focus()
   }, [E.err])
 
-  return (
+  const preview = (
     <>
-      <div className="ehead">
-        <h2>
-          <button className="back" onClick={onBack} aria-label="Back to templates">
-            {ICONS.back()}
-          </button>
-          <span>{create ? 'Create a template' : <><span className="sl">Templates /</span> {E.orig.name}</>}</span>
-        </h2>
+      <div className="seg">
+        <button className={E.pv === 'inv' ? 'on' : ''} onClick={() => setPv('inv')}>
+          Invoice
+        </button>
+        <button className={E.pv === 'quo' ? 'on' : ''} onClick={() => setPv('quo')}>
+          Quote
+        </button>
+      </div>
+      <Paper s={eff(E.draft, E.pv)} />
+    </>
+  )
+  const footer = (
+    <>
+      <button className="btn wh outline" onClick={onBack}>
+        Discard
+      </button>
+      <button className="btn dark" onClick={onSave}>
+        {create ? 'Save template' : 'Save changes'}
+      </button>
+    </>
+  )
+
+  return (
+    <ListLayout
+      title={create ? 'Create a template' : <><span className="sl">Templates /</span> {E.orig.name}</>}
+      onBack={onBack}
+      backLabel="Back to templates"
+      preview={preview}
+      onClose={onClose}
+      footer={footer}
+    >
+      <div className="etabs">
         <div className="tabs" role="tablist">
           {['general', 'inv', 'quo'].map((k) => (
             <button key={k} className={'tab' + (E.tab === k ? ' on' : '')} role="tab" onClick={() => setTab(k)}>
@@ -258,35 +284,9 @@ export default function TemplateEditor({ E, dirty, set, setTab, setPv, onPaste, 
           ))}
         </div>
       </div>
-      <div className="egrid">
-        <div key={E.tab}>
-          <Form E={E} set={set} hl={hl} onPaste={onPaste} nameRef={nameRef} />
-        </div>
-        <aside className="pvp ed">
-          <div className="pvh">
-            <span>Live preview</span>
-            <div className="seg">
-              <button className={E.pv === 'inv' ? 'on' : ''} onClick={() => setPv('inv')}>
-                Invoice
-              </button>
-              <button className={E.pv === 'quo' ? 'on' : ''} onClick={() => setPv('quo')}>
-                Quote
-              </button>
-            </div>
-          </div>
-          <Paper s={eff(E.draft, E.pv)} />
-        </aside>
+      <div className="lv-form" key={E.tab}>
+        <Form E={E} set={set} hl={hl} onPaste={onPaste} nameRef={nameRef} />
       </div>
-      <div className="efoot">
-        <div className="bt">
-          <button className="btn" onClick={onBack}>
-            Discard
-          </button>
-          <button className="btn dark" onClick={onSave}>
-            {create ? 'Save template' : 'Save changes'}
-          </button>
-        </div>
-      </div>
-    </>
+    </ListLayout>
   )
 }

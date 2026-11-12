@@ -1,21 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon, { ICONS } from './Icon.jsx'
 import TemplateList from './TemplateList.jsx'
 import TemplateEditor from './TemplateEditor.jsx'
-import { clone, newTpl, searchSettings, setP } from './data.js'
-// PROTO:search-spotlight start
-import SpotlightSearch from './proto/SpotlightSearch.jsx'
-import { useVariant, PROTO } from './proto/store.js'
-// PROTO:search-spotlight end
+import SpotlightSearch from './SpotlightSearch.jsx'
+import { clone, newTpl, setP } from './data.js'
 // PROTO:create-steps start
+import { useVariant, PROTO } from './proto/store.js'
 import ProtoPicker from './proto/SearchPicker.jsx'
 import { StepsNav, StepsEditor } from './proto/StepsCreate.jsx'
+import SplitCreate from './proto/SplitCreate.jsx'
 // PROTO:create-steps end
 
 const PAGES = ['Logo & branding', 'Payments & reminders', 'Compliance', 'E-invoices']
 
 export default function SettingsModal({ templates, setTemplates, toast, onClose }) {
-  const protoVariant = useVariant('s') // PROTO:search-spotlight
   const createVariant = useVariant('c') // PROTO:create-steps
   const [view, setView] = useState('list') // list | edit | create | page
   const [page, setPage] = useState('')
@@ -24,14 +22,9 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
   const [E, setE] = useState(null)
   const [focusField, setFocusField] = useState(null)
   const [dlg, setDlg] = useState(null)
-  const [query, setQuery] = useState('')
-  const [active, setActive] = useState(0)
-  const [ddOpen, setDdOpen] = useState(false)
   const mcol = useRef(null)
 
   const dirty = !!E && JSON.stringify(E.draft) !== JSON.stringify(E.orig)
-  const results = useMemo(() => searchSettings(query, templates), [query, templates])
-  const showDD = ddOpen && query.trim() !== ''
 
   const askDiscard = (next) => {
     if (!dirty) return next()
@@ -108,8 +101,6 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
 
   const gotoRes = (r) => {
     const go = () => {
-      setQuery('')
-      setDdOpen(false)
       if (E && E.draft.id !== r.tpl) setE(null)
       openEditor(r.tpl, r.tab, r.field)
     }
@@ -117,36 +108,24 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
     else go()
   }
 
-  // Escape closes the innermost layer: dialog, search dropdown, editor, then the modal.
+  // Escape closes the innermost layer: dialog, editor, then the modal. (The search palette handles its own Escape.)
   const latest = useRef()
-  latest.current = { dlg, showDD, view, askDiscard, backToList, onClose }
+  latest.current = { dlg, view, askDiscard, backToList, onClose }
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Escape') return
       const s = latest.current
       if (s.dlg) setDlg(null)
-      else if (s.showDD) {
-        setQuery('')
-        setDdOpen(false)
-      } else if (s.view === 'edit' || s.view === 'create') s.askDiscard(s.backToList)
+      else if (s.view === 'edit' || s.view === 'create') s.askDiscard(s.backToList)
       else s.askDiscard(s.onClose)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [])
 
-  const onSearchKey = (e) => {
-    if (e.key === 'ArrowDown' && results.length) {
-      setActive((active + 1) % results.length)
-      e.preventDefault()
-    } else if (e.key === 'ArrowUp' && results.length) {
-      setActive((active + results.length - 1) % results.length)
-      e.preventDefault()
-    } else if (e.key === 'Enter' && results.length) gotoRes(results[active])
-  }
-
   const inTemplates = view !== 'page'
   const protoSteps = PROTO && view === 'create' && createVariant === 1 // PROTO:create-steps
+  const protoSplit = PROTO && view === 'create' && createVariant === 3 // PROTO:create-steps
 
   return (
     <>
@@ -155,29 +134,7 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
         {protoSteps ? <StepsNav E={E} setTab={setTab} /> : (
         <aside className="snav">
           <h3>Settings</h3>
-          {/* PROTO:search-spotlight start */}
-          {PROTO && protoVariant === 2 ? (
-            <SpotlightSearch templates={templates} onPick={gotoRes} />
-          ) : (
-          <div className="sinp">
-            {ICONS.search()}
-            <input
-              placeholder="Search"
-              autoComplete="off"
-              aria-label="Search settings"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value)
-                setActive(0)
-                setDdOpen(true)
-              }}
-              onKeyDown={onSearchKey}
-              onFocus={() => setDdOpen(true)}
-              onBlur={() => setTimeout(() => setDdOpen(false), 120)}
-            />
-          </div>
-          )}
-          {/* PROTO:search-spotlight end */}
+          <SpotlightSearch templates={templates} onPick={gotoRes} />
           <div className="sgrp">
             {ICONS.receipt()}Documents{ICONS.chevDown('ch')}
           </div>
@@ -220,6 +177,7 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
                 setPvList={setPvList}
                 onOpen={openEditor}
                 onCreate={openCreate}
+                onClose={() => askDiscard(onClose)}
               />
             )}
             {/* PROTO:create-steps start */}
@@ -231,11 +189,23 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
                 onPaste={paste}
                 onBack={() => askDiscard(backToList)}
                 onSave={save}
+                onClose={() => askDiscard(onClose)}
                 onNameError={() => setE((e) => ({ ...e, err: true }))}
               />
             )}
+            {protoSplit && E && (
+              <SplitCreate
+                E={E}
+                set={set}
+                setTab={setTab}
+                setPv={setPv}
+                onPaste={paste}
+                onDiscard={() => askDiscard(backToList)}
+                onSave={save}
+              />
+            )}
             {/* PROTO:create-steps end */}
-            {(view === 'edit' || (view === 'create' && !protoSteps)) && E && (
+            {(view === 'edit' || (view === 'create' && !protoSteps && !protoSplit)) && E && (
               <TemplateEditor
                 E={E}
                 dirty={dirty}
@@ -245,6 +215,7 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
                 onPaste={paste}
                 onBack={() => askDiscard(backToList)}
                 onSave={save}
+                onClose={() => askDiscard(onClose)}
                 focusField={focusField}
               />
             )}
@@ -255,36 +226,10 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
           {ICONS.close()}
         </button>
 
-        {showDD && (
-          <div
-            className="dd"
-            role="listbox"
-            onMouseDown={(e) => {
-              e.preventDefault()
-              const row = e.target.closest('.row')
-              if (row) gotoRes(results[+row.dataset.i])
-            }}
-          >
-            {results.length === 0 ? (
-              <div className="none">No results for “{query}”. Try “footer”, “message”, or a template name.</div>
-            ) : (
-              results.map((r, i) => (
-                <div key={i} className={'row' + (i === active ? ' on' : '')} data-i={i} role="option">
-                  <div>
-                    <b>{r.title}</b>
-                    <span>{r.path}</span>
-                  </div>
-                  {r.tag && <span className="tag">{r.tag}</span>}
-                </div>
-              ))
-            )}
-          </div>
-        )}
       </div>
 
       {/* PROTO:create-steps start */}
-      {PROTO && <ProtoPicker kind="i" />}
-      {PROTO && (view === 'list' || view === 'create') && <ProtoPicker kind={view === 'create' ? 'c' : 's'} stacked />}
+      {PROTO && view === 'create' && <ProtoPicker kind="c" level={1} />}
       {/* PROTO:create-steps end */}
 
       {dlg && (

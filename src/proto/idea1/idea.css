@@ -25,4 +25,4 @@
 .btn.del:hover{background:var(--bg-2)}
 .btn.del:disabled{background:transparent;color:var(--fg-3)}
 .dlg .btn.dark.danger{background:var(--danger);color:#fff}
-.ehead.split{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ehead.ehead-between{display:flex;align-items:center;justify-content:space-between;gap:12px}

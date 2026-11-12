@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import Paper from '../../Paper.jsx'
+import ListLayout from '../../ListLayout.jsx'
 import Icon, { ICONS } from '../../Icon.jsx'
 import { Sw, Fld } from '../../TemplateEditor.jsx'
 import { eff, getP } from '../../data.js'
@@ -30,7 +31,7 @@ function Text({ label, path, draft, set, max, rows }) {
 }
 
 /** Template editor for a single document type: one flat form, no tabs. */
-export default function DocEditor({ E, dirty, canDelete, title, defaults, hideDelete, onCreate, set, onBack, onSave, onDelete, brand, presets }) {
+export default function DocEditor({ E, dirty, canDelete, title, defaults, hideDelete, onCreate, set, onBack, onSave, onDelete, onClose, brand, presets }) {
   const { type: p, draft, orig, mode } = E
   const d = draft[p]
   const create = mode === 'create'
@@ -54,28 +55,33 @@ export default function DocEditor({ E, dirty, canDelete, title, defaults, hideDe
     set(p + '.cols.totalInc', v !== 'Total excl. VAT')
   }
 
-  return (
+  const footer = (
     <>
-      {defaults ? (
-        <div className="ehead split">
-          <h2>{title}</h2>
-          <button className="btn" onClick={onCreate} style={{ marginRight: 56 }}>
-            {ICONS.plus()}Create template
-          </button>
-        </div>
-      ) : (
-        <div className="ehead">
-          <h2>
-            <button className="back" onClick={onBack} aria-label={`Back to ${title}`}>
-              {ICONS.back()}
-            </button>
-            <span className="idea-title">
-              {title} &gt; {create ? 'Create a template' : orig.name}
-            </span>
-          </h2>
-        </div>
+      {!defaults && !hideDelete && (
+        <button className="btn del" onClick={onDelete} disabled={!canDelete} title={canDelete ? undefined : 'You need at least one template'}>
+          <Icon>
+            <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+          </Icon>
+          Delete
+        </button>
       )}
-      <div className="egrid idea-grid">
+      <button className="btn dark" onClick={onSave} disabled={!dirty || !draft.name.trim()}>
+        Save changes
+      </button>
+    </>
+  )
+
+  return (
+    <ListLayout
+      title={defaults ? title : `${title} > ${create ? 'Create a template' : orig.name}`}
+      onBack={defaults ? undefined : onBack}
+      backLabel={`Back to ${title}`}
+      onCreate={defaults ? onCreate : undefined}
+      onClose={onClose}
+      preview={<Paper s={eff({ ...draft, presets }, p)} brand={brand} />}
+      footer={footer}
+    >
+      <div className="lv-form">
         <div>
           {!defaults && (
             <>
@@ -167,28 +173,7 @@ export default function DocEditor({ E, dirty, canDelete, title, defaults, hideDe
             )}
           </Fld>
         </div>
-        <aside className="pvp ed">
-          <div className="pvh">
-            <span>Live preview</span>
-          </div>
-          <Paper s={eff({ ...draft, presets }, p)} brand={brand} />
-        </aside>
       </div>
-      <div className="efoot">
-        <div className="bt">
-          {!defaults && !hideDelete && (
-            <button className="btn del" onClick={onDelete} disabled={!canDelete} title={canDelete ? undefined : 'You need at least one template'}>
-              <Icon>
-                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
-              </Icon>
-              Delete
-            </button>
-          )}
-          <button className="btn dark" onClick={onSave} disabled={!dirty || !draft.name.trim()}>
-            Save changes
-          </button>
-        </div>
-      </div>
-    </>
+    </ListLayout>
   )
 }

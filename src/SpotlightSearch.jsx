@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ICONS } from '../Icon.jsx'
-import { searchSettings } from '../data.js'
+import { ICONS } from './Icon.jsx'
+import { searchSettings } from './data.js'
 import './spotlight.css'
 
 const SUGGESTIONS = ['footer', 'message', 'columns', 'discount', 'quote validity', 'terms']

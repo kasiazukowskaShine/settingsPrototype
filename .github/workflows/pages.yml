@@ -1,8 +1,11 @@
 name: Deploy prototype to GitHub Pages
 
+# One Pages site can only come from one workflow run, so every run builds both branches and publishes them together:
+#   main       -> https://<user>.github.io/<repo>/
+#   layout-v2  -> https://<user>.github.io/<repo>/layout-v2/
 on:
   push:
-    branches: [main]
+    branches: [main, layout-v2]
   workflow_dispatch:
 
 permissions:
@@ -19,18 +22,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-src
+      - uses: actions/checkout@v4
+        with:
+          ref: layout-v2
+          path: v2-src
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+      - name: Build main
+        working-directory: main-src
+        run: npm ci && npm run build
         env:
           VITE_PROTO: '1'
+      - name: Build layout-v2
+        working-directory: v2-src
+        run: npm ci && npm run build
+        env:
+          VITE_PROTO: '1'
+      - name: Assemble site
+        run: |
+          mkdir site
+          cp -r main-src/dist/. site/
+          mkdir site/layout-v2
+          cp -r v2-src/dist/. site/layout-v2/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
