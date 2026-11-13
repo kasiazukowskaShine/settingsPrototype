@@ -1,4 +1,7 @@
 import { ICONS } from './Icon.jsx'
+// PROTO:layout start
+import { PROTO, useVariant } from './proto/store.js'
+// PROTO:layout end
 
 /**
  * Settings page layout: the live preview has its own column next to the sidebar, the content sits on the right
@@ -10,10 +13,17 @@ import { ICONS } from './Icon.jsx'
  * - `footer` replaces the default bar. On a list there is nothing to save, so the default buttons are disabled.
  */
 export default function ListLayout({ title, onBack, backLabel = 'Back', preview, onCreate, onClose, footer, children }) {
+  const right = PROTO && useVariant('l') === 2 // PROTO:layout
+  const close = (
+    <button className="lv-x" onClick={onClose} aria-label="Close settings">
+      {ICONS.close()}
+    </button>
+  )
   return (
-    <div className="lview">
+    <div className={'lview' + (right ? ' rt' : '')}>
       <aside className="lv-pv">
         <div className="lv-pv-in">{preview}</div>
+        {right && <div className="lv-pv-x">{close}</div>}
       </aside>
       <section className="lv-main">
         <div className="lv-head">
@@ -31,9 +41,7 @@ export default function ListLayout({ title, onBack, backLabel = 'Back', preview,
                 Create a template
               </button>
             )}
-            <button className="lv-x" onClick={onClose} aria-label="Close settings">
-              {ICONS.close()}
-            </button>
+            {!right && close}
           </div>
         </div>
         <div className="lv-list">{children}</div>
