@@ -324,8 +324,8 @@ table.tb{width:100%;border-collapse:collapse;min-width:760px}
 .modal-root{display:contents}
 .modal-root[data-switch] *{animation-duration:0s!important;animation-delay:0s!important}
 
-/* Layout 2: preview on the right, close button in its top-right corner */
-.lview.rt .lv-pv{order:2}
-.lview.rt{grid-template-columns:minmax(0,1fr) minmax(300px,.77fr)}
+/* preview on the right, close button in its top-right corner */
+.lview .lv-pv{order:2}
+.lview{grid-template-columns:minmax(0,1fr) minmax(300px,.77fr)}
 .lv-pv-x{position:absolute;top:36px;right:36px;z-index:4}
-@media (max-width:900px){.lv-pv-x{top:20px;right:16px}}
+@media (max-width:900px){.lv-pv-x{position:fixed;top:12px;right:12px}.lv-head{padding-right:56px}}

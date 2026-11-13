@@ -53,7 +53,6 @@ export default function App() {
       </div>
       {/* PROTO:idea start */}
       {open && PROTO && <ProtoPicker kind="i" />}
-      {open && PROTO && <ProtoPicker kind="l" level={idea === 1 ? 2 : 1} />}
       {/* PROTO:idea end */}
       <div className={'toast' + (toastOn ? ' on' : '')} role="status" aria-live="polite">
         {toastMsg}

@@ -5,7 +5,6 @@ import './picker.css'
 const NAMES = {
   i: ['Idea 1', 'Idea 2'],
   d: ['Create from default', 'Start from a template'],
-  l: ['Preview left', 'Preview right'],
 }
 
 /**
