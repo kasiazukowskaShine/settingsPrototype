@@ -7,7 +7,7 @@ import { clone, newTpl, setP } from './data.js'
 
 const PAGES = ['Logo & branding', 'Payments & reminders', 'Compliance', 'E-invoices']
 
-export default function SettingsModal({ templates, setTemplates, toast, onClose }) {
+export default function SettingsModal({ templates, setTemplates, toast, onClose, sheet = false }) {
   const [view, setView] = useState('list') // list | edit | create | page
   const [page, setPage] = useState('')
   const [hover, setHover] = useState(0)
@@ -120,7 +120,7 @@ export default function SettingsModal({ templates, setTemplates, toast, onClose 
 
   return (
     <>
-      <div className={'modal' + (view === 'create' ? ' focus' : '')} role="dialog" aria-modal="true" aria-label="Settings">
+      <div className={'modal' + (sheet ? ' sheet' : '') + (view === 'create' ? ' focus' : '')} role="dialog" aria-modal="true" aria-label="Settings">
         <aside className="snav">
           <h3>Settings</h3>
           <SpotlightSearch templates={templates} onPick={gotoRes} />

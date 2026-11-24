@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ICONS } from '../../Icon.jsx'
 import { clone, newTpl, setP } from '../../data.js'
-import ProtoPicker from '../SearchPicker.jsx'
 import { useVariant } from '../store.js'
 import BrandPage from './BrandPage.jsx'
 import PresetsPage from './PresetsPage.jsx'
@@ -268,7 +267,6 @@ export default function IdeaOne({ toast, onClose }) {
         </div>
       )}
 
-      {isDocPage && !(E && !E.defaults) && <ProtoPicker kind="d" level={1} />}
     </>
   )
 }

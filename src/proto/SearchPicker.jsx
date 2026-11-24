@@ -3,7 +3,8 @@ import { setVariant, useVariant } from './store.js'
 import './picker.css'
 
 const NAMES = {
-  i: ['Idea 1', 'Idea 2'],
+  v: ['V1', 'V2'],
+  i: ['Lumen as is', 'Idea 2', 'Idea 2B', 'Idea 3', 'Idea 3B'],
   d: ['Create from default', 'Start from a template'],
 }
 
@@ -34,7 +35,7 @@ export default function ProtoPicker({ kind, level = 0 }) {
     const onKey = (e) => {
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
-      const num = parseInt(e.key, 10) - level * 2
+      const num = parseInt(e.key, 10) - (level ? 2 + (level - 1) * 5 : 0) // level 0 owns 1-2 (the version)
       if (num >= 1 && num <= names.length) setVariant(kind, num)
       else if (level === 0 && e.key === 'ArrowRight') setVariant(kind, (v % names.length) + 1)
       else if (level === 0 && e.key === 'ArrowLeft') setVariant(kind, ((v - 2 + names.length) % names.length) + 1)

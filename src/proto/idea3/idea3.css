@@ -1,0 +1,99 @@
+/* Idea 3: list sits inside the app shell (real sidebar stays), editor goes full screen. */
+.i3{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;grid-template-rows:minmax(0,1fr);grid-template-columns:270px minmax(0,1fr);--i3h:72px;transition:grid-template-columns .35s cubic-bezier(.4,0,.2,1);animation:fade-in .2s ease-out}
+.i3.full{grid-template-columns:0px minmax(0,1fr)}
+/* same hand-off as idea 2: the nav slides out while the content column grows into its place */
+.i3.full .i3-nav{transform:translateX(-100%);opacity:0;visibility:hidden;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s,visibility 0s .35s}
+.i3-head.ed~.i3-body .i3-tabs,.i3-head.ed~.i3-body .i3-form{animation:rise-in .25s ease-out}
+.i3-nav{background:var(--bg);height:100%;min-width:0;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s .1s}
+.i3-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.i3-body.solo{grid-template-columns:minmax(0,1fr);transition:none}
+.i3-head{flex:none;height:var(--i3h);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px 0 24px}
+.i3-head h2{font-size:24px;line-height:32px;display:flex;align-items:center;gap:16px;min-width:0}
+.i3-head.ed{padding:0 32px}
+.i3-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.i3-acts{display:flex;align-items:center;gap:12px;flex:none}
+.i3-body{flex:1;min-height:0;display:grid;grid-template-columns:1fr calc((100vw - 270px) / 2);transition:grid-template-columns .35s cubic-bezier(.4,0,.2,1)} /* the list's preview keeps its width when the nav is there */
+.i3.full .i3-body{grid-template-columns:1fr 50vw} /* editor: 50/50 split */
+.i3-left{min-width:0;overflow-y:auto}
+.i3-list{padding:24px}
+.i3-pv{background:var(--bg);display:flex;align-items:center;justify-content:center;padding:56px 40px;min-width:0;overflow:hidden}
+.i3-pv .pw{width:min(100%,560px,calc((100dvh - var(--i3h) - 112px) * .7071));margin:0}
+.i3-tabs{position:sticky;top:0;z-index:2;background:var(--bg);padding:40px max(24px,calc((100% - 532px) / 2)) 0}
+.i3-tabs .tabs{margin-top:0}
+.i3-form{padding:24px max(24px,calc((100% - 532px) / 2)) 48px}
+.i3-body{background:var(--bg)}
+.i3.full .i3-body{background:var(--bg-2)}
+.i3.full .i3-left{padding:16px 32px 32px}
+.i3.full .i3-card{background:var(--bg);border-radius:16px;overflow:clip}
+
+.i3.full .i3-pv{background:transparent}
+.i3-pv .pw{box-shadow:none;border:1px solid var(--line);border-radius:12px}
+.bd.dr{background:var(--bg-3);color:var(--fg-2)}
+/* settings opens as a modal: 8px from the screen edges, 32px radius, page dimmed behind */
+.i3.sheet{inset:8px;border-radius:32px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(10,12,16,.45)}
+.i3.sheet .i3-body{grid-template-columns:1fr calc((100vw - 16px - 270px) / 2)}
+.i3.sheet.full .i3-body{grid-template-columns:1fr calc(50vw - 8px)}
+.i3.sheet .i3-body.solo{grid-template-columns:minmax(0,1fr)}
+@media (max-width:900px){
+  .i3.sheet{inset:0;border-radius:0;box-shadow:none}
+  .i3,.i3.full{display:flex;flex-direction:column;overflow-y:auto}
+  .i3.full .i3-nav{display:none}
+  .i3-nav{width:auto;height:auto;border-right:0;border-bottom:1px solid var(--line);overflow:visible}
+  .i3-main{flex:none}
+  .i3-body{display:block;overflow-y:auto}
+  .i3-left{overflow:visible}
+  .i3-pv{padding:24px 16px 32px}
+  .i3-pv .pw{width:min(100%,420px)}
+  .i3-head,.i3-head.ed{padding:0 16px}
+  .i3-head.ed .btn{padding:0 14px}
+}
+.i3 .tcard:hover,.i3 .tcard.on{background:var(--bg)}
+
+/* Lumen as is: full-page white editor, 32px page margin, grey preview panel with a shadowed sheet */
+.i3.lm.full .i3-head{padding:0 32px}
+.i3.lm.full .i3-body{background:var(--bg);padding:0 32px 24px;gap:24px;grid-template-columns:1fr 1fr}
+.i3.lm.full .i3-left{padding:0}
+.i3.lm.full .i3-card{max-width:580px;margin:0 auto 16px;background:var(--bg);border:1px solid var(--line);border-radius:20px;overflow:clip}
+.i3.lm.full .i3-tabs{padding:24px 24px 0}
+.i3.lm.full .i3-form{padding:24px 24px 32px;max-width:none}
+.i3.lm.full .i3-pv{background:var(--bg-2);padding:56px 40px}
+.i3.lm .i3-pv .pw{border:0;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
+.i3.lm .i3-acts .lv-x{flex:none}
+@media (max-width:900px){.i3.lm.full .i3-body{padding:0 16px 16px}.i3.lm.full .i3-head{padding:0 16px}}
+.i3.lm .i3-pv{background:var(--bg-2)}
+/* Lumen layout for the settings list too: same 88px header, 32px page margin and inset grey preview panel as the editor */
+.i3.lm .i3-head{padding:0 32px}
+.i3.lm .i3-body{background:var(--bg);padding:0 32px 24px;gap:24px;grid-template-columns:1fr 1fr}
+.i3.lm .i3-body.solo{grid-template-columns:minmax(0,1fr)}
+.i3.lm .i3-left{padding:0}
+.i3.lm .i3-list{padding:0 0 16px;max-width:580px;margin:0 auto}
+.i3.lm .i3-pv{padding:56px 40px}
+
+/* Idea 3B: create flows sit inside the app shell, the left navbar stays visible (and inert while the flow is open) */
+.i3.kn{inset:0 0 0 232px}
+.i3.kn.full .i3-body{grid-template-columns:1fr 1fr}
+@media (max-width:900px){.i3.kn{inset:0}}
+/* 3B keeps the white canvas; 2B is the grounded alternative */
+.i3.kn.full .i3-body{background:var(--bg)}
+
+/* Ideas 3 and 3B: the preview fills its column and scrolls, instead of shrinking to fit the height */
+.i3:not(.lm) .i3-pv{align-items:flex-start;overflow-y:auto;padding:24px 32px 32px}
+/* the paper's top edge lines up with the first form card */
+.i3:not(.lm).full .i3-pv{padding-top:16px}
+.i3:not(.lm) .i3-pv .pw{width:100%;max-width:none}
+/* settings pages (not the template editor): the preview fits its column, no scrolling */
+.i3.sheet:not(.lm):not(.full) .i3-pv{align-items:center;overflow:hidden}
+.i3.sheet:not(.lm):not(.full) .i3-pv .pw{width:min(100%,calc((100dvh - 16px - var(--i3h) - 56px) * .7071))}
+/* idea 3's invoice page is for reading, not building, so its preview fits without scrolling */
+.i3.fit:not(.lm) .i3-pv{align-items:center;overflow:hidden}
+.i3.fit:not(.lm) .i3-pv .pw{width:min(100%,calc((100dvh - var(--i3h) - 48px) * .7071))}
+
+/* prototype setting: preview on the left, form on the right */
+[data-pv="left"] .i3-left{order:2}
+[data-pv="left"] .i3-pv{order:1}
+[data-pv="left"] .i3-body{grid-template-columns:calc((100vw - 270px) / 2) 1fr}
+[data-pv="left"] .i3.full .i3-body{grid-template-columns:50vw 1fr}
+[data-pv="left"] .i3.sheet .i3-body{grid-template-columns:calc((100vw - 16px - 270px) / 2) 1fr}
+[data-pv="left"] .i3.sheet.full .i3-body{grid-template-columns:calc(50vw - 8px) 1fr}
+[data-pv="left"] .i3.kn.full .i3-body,[data-pv="left"] .i3.lm .i3-body,[data-pv="left"] .i3.lm.full .i3-body{grid-template-columns:1fr 1fr}
+[data-pv="left"] .i3-body.solo,[data-pv="left"] .i3.sheet .i3-body.solo{grid-template-columns:minmax(0,1fr)}

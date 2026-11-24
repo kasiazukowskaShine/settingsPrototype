@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import Icon, { ICONS } from './Icon.jsx'
+import PurchasesPage from './purchase/PurchasesPage.jsx'
 
 const KPIS = [
   { cls: '', n: 7, label: 'All Invoices', v: '1.081', c: ',10 EUR' },
@@ -21,50 +23,85 @@ const ROWS = [
 
 const HEADS = ['', 'No.', 'Type', 'Client', 'Date', 'Due date', 'Description', 'Excl. VAT', '']
 
-export default function InvoicesApp({ onSettings, onNA }) {
+const STATE_BY_DOT = { '#f0c400': 'unpaid', '#c93a3a': 'overdue', '#4a7bf0': 'draft', '#1f9d55': 'paid', '#a0a6b0': 'cancelled' }
+const toInv = (r) => ({
+  no: r[1] === '—' ? '—' : r[1].split('-').pop(),
+  client: r[3],
+  date: r[4],
+  due: r[5],
+  amount: parseFloat(r[7].replace(',', '.')),
+  state: r[2] === 'Credit note' ? 'credit' : STATE_BY_DOT[r[0]],
+})
+
+function Badge({ children, blue }) {
+  return <span className={'nb' + (blue ? ' blue' : '')}>{children}</span>
+}
+function Item({ icon, children, badge, blue, onClick, plain }) {
+  return (
+    <button className={'nv' + (plain ? ' plain' : '')} onClick={onClick}>
+      <Icon d={icon} />
+      {children}
+      {badge && <Badge blue={blue}>{badge}</Badge>}
+    </button>
+  )
+}
+function Group({ icon, label, open, onToggle, children }) {
+  return (
+    <>
+      <button className="nv" onClick={onToggle} aria-expanded={children ? !!open : undefined}>
+        <Icon d={icon} />
+        {label}
+        {open ? ICONS.chevUp('ch') : ICONS.chevDown('ch')}
+      </button>
+      {open && children}
+    </>
+  )
+}
+function Sub({ children, on, badge, onClick }) {
+  return (
+    <button className={'nv sub' + (on ? ' on' : '')} onClick={onClick}>
+      {children}
+      {badge && <Badge>{badge}</Badge>}
+    </button>
+  )
+}
+
+export default function InvoicesApp({ onSettings, onNA, onCreate, onOpen, purchases = [], onCreatePurchase, locked }) {
+  const [page, setPage] = useState('invoices')
+  const [open, setOpen] = useState({ inv: true, exp: false })
+  const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }))
   return (
     <div className="app">
-      <aside className="side">
+      <aside className="side" inert={!!locked}>
         <div className="co">
           <b>AB</b>Company_name
         </div>
-        <div className="nv">
-          <Icon d="M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18" />
-          Business account
-          {ICONS.chevDown('ch')}
-        </div>
-        <div className="nv">
-          <Icon d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" />
-          Invoicing
-          {ICONS.chevUp('ch')}
-        </div>
-        <div className="nv sub on">Invoices</div>
-        <div className="nv sub">Quotes</div>
-        <div className="nv sub">Items</div>
-        <div className="nv sub">Clients</div>
-        <div className="nv sub">Supplier e-invoices</div>
-        <div className="nv">
-          <Icon>
-            <rect x="3" y="6" width="18" height="13" rx="2" />
-            <path d="M3 10h18" />
-          </Icon>
-          Team
-          {ICONS.chevDown('ch')}
-        </div>
-        <div className="nv">
-          <Icon d="M12 3a9 9 0 109 9h-9z" />
-          Reports
-          {ICONS.chevDown('ch')}
-        </div>
-        <div className="nv">
-          <Icon d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />
-          Insurance
-        </div>
-        <div className="nv">
-          <Icon d="M8 12l3 3 5-6M3 12l4-4 5 1 5-1 4 4-8 8z" />
-          Lending
+        <Item icon="M4 5h16v14H4zM8 12l3 3 5-6" badge="3" blue onClick={onNA}>Quick Start</Item>
+        <Item icon="M3 4h18v12H3zM8 20l4-4 4 4" onClick={onNA}>Overview</Item>
+        <Group icon="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" label="Invoicing" open={open.inv} onToggle={() => toggle('inv')}>
+          <Sub on={page === 'invoices'} onClick={() => setPage('invoices')}>Invoices</Sub>
+          <Sub onClick={onNA}>Recurring invoices</Sub>
+          <Sub onClick={onNA}>Quotes</Sub>
+          <Sub onClick={onNA}>Items</Sub>
+          <Sub onClick={onNA}>Clients</Sub>
+        </Group>
+        <Group icon="M4 7h14a2 2 0 012 2v9H4zM4 7V5h12M16 13h2" label="Expenses" open={open.exp} onToggle={() => toggle('exp')}>
+          <Sub badge="1" onClick={onNA}>Receipts</Sub>
+          <Sub on={page === 'purchases'} onClick={() => setPage('purchases')}>Purchases</Sub>
+          <Sub onClick={onNA}>Suppliers</Sub>
+          <Sub onClick={onNA}>Unpaid expenses</Sub>
+        </Group>
+        <Group icon="M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18" label="Banking" onToggle={onNA} />
+        <Item icon="M3 6h6l2 2h10v11H3z" onClick={onNA}>Documents</Item>
+        <Group icon="M12 3a9 9 0 109 9h-9z" label="Reports" onToggle={onNA} />
+        <div className="nv-foot">
+          <Item icon="M4 5h16v11H9l-5 4z" onClick={onNA} plain>Give feedback</Item>
+          <Item icon="M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 115 0c0 2-2.5 2-2.5 4M12 17h.01" onClick={onNA} plain>Help</Item>
         </div>
       </aside>
+      {page === 'purchases' ? (
+        <PurchasesPage purchases={purchases} onCreate={onCreatePurchase} onNA={onNA} />
+      ) : (
       <main className="main">
         <div className="top">
           <h1>Invoices</h1>
@@ -78,7 +115,7 @@ export default function InvoicesApp({ onSettings, onNA }) {
             <button className="btn" onClick={onNA}>
               Create deposit invoice
             </button>
-            <button className="btn dark" onClick={onNA}>
+            <button className="btn dark" onClick={onCreate}>
               Create invoice
             </button>
           </div>
@@ -119,7 +156,7 @@ export default function InvoicesApp({ onSettings, onNA }) {
             </thead>
             <tbody>
               {ROWS.map((r) => (
-                <tr key={r[1] + r[3]}>
+                <tr key={r[1] + r[3]} onClick={() => onOpen(toInv(r))} style={{ cursor: 'pointer' }}>
                   <td>
                     <span className="dot" style={{ background: r[0] }} />
                   </td>
@@ -138,6 +175,7 @@ export default function InvoicesApp({ onSettings, onNA }) {
           <span>1 – 7 of 7</span>
         </div>
       </main>
+      )}
     </div>
   )
 }
