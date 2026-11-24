@@ -61,8 +61,8 @@ export default function App() {
   return (
     <>
       <InvoicesApp locked={(L.keepNav && (creating || buying)) || (L.viewNav && !!view)} onSettings={() => setOpen(true)} onCreate={() => setCreating(true)} onOpen={setView} purchases={purchases} onCreatePurchase={() => setBuying(true)} onNA={() => toast('Not part of this prototype')} />
-      {creating && <InvoiceCreate L={L} toast={toast} onSettings={() => setOpen(true)} paused={open} onClose={() => setCreating(false)} onFinalise={(i) => { setCreating(false); setView(i); toast('Invoice finalised') }} />}
-      {view && <InvoiceView L={L} inv={view} toast={toast} onClose={() => setView(null)} />}
+      {creating && <InvoiceCreate L={L} toast={toast} onSettings={() => setOpen(true)} paused={open} onClose={() => setCreating(false)} onFinalise={(i) => { setCreating(false); setView({ ...i, enter: true }) }} />}
+      {view && <InvoiceView L={L} inv={view} enter={view.enter} toast={toast} onClose={() => setView(null)} />}
       {buying && <PurchaseCreate L={L} toast={toast} onClose={() => setBuying(false)} onAdd={(p) => { setPurchases((x) => [...x, p]); setBuying(false) }} />}
       <div className="modal-root" data-switch={switching ? '' : undefined}>
         {/* PROTO:idea start */}

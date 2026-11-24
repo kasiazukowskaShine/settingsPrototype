@@ -8,6 +8,7 @@ import './invoice.css'
 import InvoiceForm, { newInvoice } from './InvoiceForm.jsx'
 
 const PV = eff(newTpl('Default template', true), 'inv')
+export const GEAR = 'M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'
 
 /**
  * Create invoice, opened from the invoices list. The layout follows the selected variant: an 'i3' flow is the
@@ -18,6 +19,8 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
   const [d, setD] = useState(newInvoice)
   const [orig] = useState(newInvoice)
   const [dlg, setDlg] = useState(null)
+  const [leaving, setLeaving] = useState(false)
+  const [ask, setAsk] = useState(false) // approval step before finalising
   const set = (k, v) => setD((x) => ({ ...x, [k]: v }))
   const dirty = JSON.stringify(d) !== JSON.stringify(orig)
   const leave = () => (dirty ? setDlg(true) : onClose())
@@ -26,23 +29,32 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
       toast('Draft saved.')
       return onClose()
     }
+    if (leaving) return
+    setAsk(true)
+  }
+  const approve = () => {
+    setAsk(false)
     const net = d.items.reduce((s, it) => s + it.qty * it.price, 0)
-    onFinalise({ no: '4', client: d.customer, date: '23/11/2026', due: '23/12/2026', amount: net * 1.21, state: 'unpaid' })
+    const inv = { no: '4', client: d.customer, date: '23/11/2026', due: '23/12/2026', amount: net * 1.21, state: 'unpaid' }
+    // Let the form fade out (.fx-out, 160ms) before the invoice view takes over and fades its overview in.
+    setLeaving(true)
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    setTimeout(() => onFinalise(inv), reduce ? 100 : 160)
   }
 
   const latest = useRef()
-  latest.current = { dlg, leave, paused }
+  latest.current = { dlg, ask, leave, paused }
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Escape' || latest.current.paused) return
-      if (latest.current.dlg) setDlg(null)
+      if (latest.current.ask) setAsk(false)
+      else if (latest.current.dlg) setDlg(null)
       else latest.current.leave()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [])
 
-  const GEAR = 'M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'
   const actions = (
     <>
       <button className="icon-btn" onClick={onSettings} aria-label="Invoice settings">
@@ -65,7 +77,7 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
   return (
     <>
       {L.flow === 'i3' ? (
-        <div className={'i3 full' + (L.fit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.keepNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label="Create invoice">
+        <div className={'i3 full' + (L.fit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.keepNav ? ' kn' : '') + (leaving ? ' fx-out' : '')} role="dialog" aria-modal="true" aria-label="Create invoice">
           <aside className="i3-nav" aria-hidden="true" />
           <div className="i3-main">
             <header className="i3-head ed">
@@ -86,7 +98,7 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
           </div>
         </div>
       ) : (
-        <div className={'modal focus' + (L.keepNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label="Create invoice">
+        <div className={'modal focus' + (L.keepNav ? ' kn' : '') + (leaving ? ' fx-out' : '')} role="dialog" aria-modal="true" aria-label="Create invoice">
           <aside className="snav" aria-hidden="true" />
           <section className="mcol">
             <ListLayout
@@ -99,6 +111,23 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
               {form}
             </ListLayout>
           </section>
+        </div>
+      )}
+
+      {ask && (
+        <div className="dlg">
+          <div className="bx" role="alertdialog" aria-labelledby="icapp" aria-describedby="icappd">
+            <h3 id="icapp">Approve invoice?</h3>
+            <p id="icappd">To finalise, you need to approve this invoice.</p>
+            <div className="bt">
+              <button className="btn" onClick={() => setAsk(false)}>
+                Reject
+              </button>
+              <button className="btn dark" onClick={approve} autoFocus>
+                Approve
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

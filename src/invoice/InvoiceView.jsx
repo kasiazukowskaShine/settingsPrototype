@@ -5,6 +5,8 @@ import Icon, { ICONS } from '../Icon.jsx'
 import { eff, newTpl } from '../data.js'
 import '../proto/idea3/idea3.css'
 import './invoice.css'
+import Morph from './Morph.jsx'
+import { GEAR } from './InvoiceCreate.jsx'
 
 const PV = eff(newTpl('Default template', true), 'inv')
 const money = (n) => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -29,10 +31,17 @@ const HISTORY = {
 
 const SHARE = <Icon d="M12 15V4M8 8l4-4 4 4M5 14v5h14v-5" />
 const DOTS = <Icon d="M5 12h.01M12 12h.01M19 12h.01" />
+// What the create screen's actions looked like, so the buttons can morph from them after finalising.
+const FROM = [
+  <Icon key="g"><circle cx="12" cy="12" r="3" /><path d={GEAR} /></Icon>,
+  'Save as Draft',
+  <>Finalise{ICONS.chevDown('ch')}</>,
+]
 
 /** Invoice page after finalising (or opening one from the list). Layout follows the selected variant; the state changes what the page shows. */
-export default function InvoiceView({ L, inv, toast, onClose }) {
+export default function InvoiceView({ L, inv, toast, onClose, enter }) {
   const [st, setSt] = useState(inv.state)
+  const [morph] = useState(() => enter && !matchMedia('(prefers-reduced-motion: reduce)').matches)
   const na = () => toast('Not part of this prototype')
   const label = inv.no === '—' ? STATES[st].title : `${STATES[st].title} - ${inv.no}`
   const credit = st === 'credit'
@@ -49,11 +58,11 @@ export default function InvoiceView({ L, inv, toast, onClose }) {
   }[st]
   const actions = (
     <>
-      <button className="icon-btn" onClick={na} aria-label="More actions">{DOTS}</button>
-      {act.map(([t, fn, primary, icon]) => (
-        <button key={t} className={'btn' + (primary ? ' dark' : ' wh ic-out')} onClick={fn}>
+      <Morph className="icon-btn" onClick={na} aria-label="More actions" from={morph && FROM[0]}>{DOTS}</Morph>
+      {act.map(([t, fn, primary, icon], i) => (
+        <Morph key={t} className={'btn' + (primary ? ' dark' : ' wh ic-out')} onClick={fn} from={morph && FROM[i + 1]}>
           {icon}{t}
-        </button>
+        </Morph>
       ))}
     </>
   )
@@ -115,7 +124,7 @@ export default function InvoiceView({ L, inv, toast, onClose }) {
   return (
     <>
       {L.flow === 'i3' ? (
-        <div className={'i3 full' + (L.fit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.viewNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label={label}>
+        <div className={'i3 full' + (L.fit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.viewNav ? ' kn' : '') + (enter ? ' fx-in' : '')} role="dialog" aria-modal="true" aria-label={label}>
           <aside className="i3-nav" aria-hidden="true" />
           <div className="i3-main">
             <header className="i3-head ed">
@@ -132,7 +141,7 @@ export default function InvoiceView({ L, inv, toast, onClose }) {
           </div>
         </div>
       ) : (
-        <div className={'modal focus' + (L.viewNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label={label}>
+        <div className={'modal focus' + (L.viewNav ? ' kn' : '') + (enter ? ' fx-in' : '')} role="dialog" aria-modal="true" aria-label={label}>
           <aside className="snav" aria-hidden="true" />
           <section className="mcol">
             <ListLayout title={label} onBack={onClose} backLabel="Back to invoices" preview={preview} footer={actions}>

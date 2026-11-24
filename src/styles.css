@@ -342,6 +342,8 @@ table.tb{width:100%;border-collapse:collapse;min-width:760px}
 /* ---------- prototype: idea 2 ---------- */
 /* settings opens as an inset sheet over the dimmed page (like idea 3) */
 .modal.sheet{inset:8px;border-radius:32px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(10,12,16,.45)}
+/* idea 2's settings nav is white, like the rest of the sheet */
+.modal.sheet .snav{background:var(--bg)}
 /* the sheet is 16px shorter than the screen, so everything sized to the screen height loses those 16px (otherwise the footer is cut off) */
 @media (min-width:901px){
   .modal.sheet .mcol,.modal.sheet .lv-pv{height:calc(100dvh - 16px)}

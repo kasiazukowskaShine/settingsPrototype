@@ -75,3 +75,26 @@
 .i3-acts .btn svg,.lv-foot .btn svg{width:16px;height:16px}
 .icf-card>.icf-row+.icf-l{margin-top:20px}
 .icf-empty{background:var(--bg-2);border-radius:8px;padding:16px;margin:16px 0 24px;text-align:center;color:var(--fg-2);font-size:14px}
+
+/* Create → Finalise: the shell and preview stay put; only the content swaps. The form leaves fast
+   (the user already decided), the overview rises in a touch slower on a strong ease-out. */
+.fx-out .icf,.fx-out .i3-title,.fx-out .lv-title{
+  opacity:0;transform:translateY(-6px);filter:blur(2px);pointer-events:none;
+  transition:opacity 160ms cubic-bezier(.25,.46,.45,.94),transform 160ms cubic-bezier(.25,.46,.45,.94),filter 160ms cubic-bezier(.25,.46,.45,.94)}
+/* The shell is already on screen: don't replay its mount fade (it let the list behind flash through). */
+.i3.fx-in,.modal.fx-in,.fx-in .i3-form,.fx-in .i3-tabs{animation:none}
+.fx-in .icf>*,.fx-in .i3-title,.fx-in .lv-title{animation:fx-rise 280ms cubic-bezier(.19,1,.22,1) both}
+.fx-in .icf>.icf-card:nth-child(2){animation:fx-rise 280ms cubic-bezier(.19,1,.22,1) 40ms both}
+.fx-in .icf>.icf-card:nth-child(3){animation:fx-rise 280ms cubic-bezier(.19,1,.22,1) 80ms both}
+@keyframes fx-rise{from{opacity:0;transform:translateY(8px);filter:blur(2px)}}
+@media (prefers-reduced-motion:reduce){
+  .fx-out .icf,.fx-out .i3-title,.fx-out .lv-title{transform:none;filter:none;transition:opacity 100ms ease}
+  .fx-in .icf>*,.fx-in .i3-title,.fx-in .lv-title{animation:fx-fade 160ms ease both}
+  @keyframes fx-fade{from{opacity:0}}
+}
+
+/* Buttons stay in the header and morph (Morph.jsx): label wrappers keep the button's own icon gap. */
+.mo-a,.mo-b{display:inline-flex;align-items:center;gap:inherit}
+.mo{position:relative;overflow:hidden}
+.mo-a{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
+.fx-out .i3-acts button,.fx-out .lv-foot button{pointer-events:none}
