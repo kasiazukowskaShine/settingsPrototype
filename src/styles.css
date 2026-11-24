@@ -339,9 +339,14 @@ table.tb{width:100%;border-collapse:collapse;min-width:760px}
 .lv-pv-x{position:absolute;top:14px;right:36px;z-index:4}
 @media (max-width:900px){.lv-pv-x{position:fixed;top:12px;right:12px}.lv-head{padding-right:56px}}
 
-/* ---------- prototype: idea 2B ---------- */
-/* settings opens as an inset sheet over the dimmed page (like idea 3B) */
+/* ---------- prototype: idea 2 ---------- */
+/* settings opens as an inset sheet over the dimmed page (like idea 3) */
 .modal.sheet{inset:8px;border-radius:32px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(10,12,16,.45)}
+/* the sheet is 16px shorter than the screen, so everything sized to the screen height loses those 16px (otherwise the footer is cut off) */
+@media (min-width:901px){
+  .modal.sheet .mcol,.modal.sheet .lv-pv{height:calc(100dvh - 16px)}
+  .modal.sheet .lv-pv .pw{width:min(100%,560px,calc((100dvh - 16px - 125px) * .7071))}
+}
 /* create flows sit beside the app navbar instead of covering it */
 .modal.kn{inset:0 0 0 232px}
 @media (max-width:900px){.modal.sheet{inset:0;border-radius:0;box-shadow:none}.modal.kn{inset:0}}
@@ -349,4 +354,18 @@ table.tb{width:100%;border-collapse:collapse;min-width:760px}
 /* prototype setting: preview on the left in the ListLayout ideas too */
 [data-pv="left"] .lview{grid-template-columns:minmax(300px,.77fr) minmax(0,1fr)}
 [data-pv="left"] .lview .lv-pv{order:0}
-[data-pv="left"] .lv-pv-x{right:auto;left:36px} /* mirrored into the preview panel's own corner */
+/* the close button stays top right: it moves from the preview's corner to the end of the header row */
+.lv-head-x{display:none}
+@media (min-width:901px){
+  [data-pv="left"] .lv-pv-x{display:none}
+  [data-pv="left"] .lv-head-x{display:contents}
+}
+
+/* create flows have no close button: the paper sits centred in the grey panel (40px around it) */
+@media (min-width:901px){
+  .lview.nox .lv-pv{justify-content:center;padding-top:40px}
+  .lview.nox .lv-pv-in>.pw:first-child{margin-top:0}
+  .lview.nox .lv-pv .pw{width:min(100%,560px,calc((100dvh - 80px) * .7071))}
+  .modal.sheet .lview.nox .lv-pv .pw{width:min(100%,560px,calc((100dvh - 16px - 80px) * .7071))}
+}
+@media (max-width:900px){.lview.nox .lv-head{padding-right:0}}

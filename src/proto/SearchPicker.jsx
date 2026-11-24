@@ -4,7 +4,7 @@ import './picker.css'
 
 const NAMES = {
   v: ['V1', 'V2'],
-  i: ['Lumen as is', 'Idea 2', 'Idea 2B', 'Idea 3', 'Idea 3B'],
+  i: ['Lumen as is', 'Idea 2', 'Idea 3'],
   d: ['Create from default', 'Start from a template'],
 }
 

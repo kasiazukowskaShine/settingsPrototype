@@ -4,17 +4,19 @@ import './picker.css'
 
 /**
  * Prototype settings. One menu instead of a stack of pills: pick the version, the layout it renders,
- * which side the preview sits on, and (on V1) how Invoices/Quotes are entered.
+ * whether create flows keep the app navbar, which side the preview sits on, and (on V1) how
+ * Invoices/Quotes are entered.
  */
 const GROUPS = [
   { key: 'v', label: 'Version', options: ['V1', 'V2'] },
-  { key: 'i', label: 'Layout', options: ['Lumen as is', 'Idea 2', 'Idea 2B', 'Idea 3', 'Idea 3B'], when: (s) => s.v === 2 },
+  { key: 'i', label: 'Layout', options: ['Lumen as is', 'Idea 2', 'Idea 3'], when: (s) => s.v === 2 },
+  { key: 'n', label: 'Navbar in create flows', options: ['Hidden', 'Visible'], when: (s) => s.v === 2 },
   { key: 'd', label: 'Document entry', options: ['Create from default', 'Start from a template'], when: (s) => s.v === 1 },
   { key: 'p', label: 'Preview side', options: ['Right', 'Left'] },
 ]
 
 export default function ProtoMenu() {
-  const s = { v: useVariant('v'), i: useVariant('i'), d: useVariant('d'), p: useVariant('p') }
+  const s = { v: useVariant('v'), i: useVariant('i'), d: useVariant('d'), p: useVariant('p'), n: useVariant('n') }
   const [open, setOpen] = useState(false)
   const root = useRef(null)
   const groups = GROUPS.filter((g) => !g.when || g.when(s))
@@ -47,7 +49,7 @@ export default function ProtoMenu() {
     return () => document.removeEventListener('keydown', onKey)
   }, [s.v, s.i])
 
-  const label = s.v === 1 ? 'V1' : GROUPS[1].options[s.i - 1]
+  const label = s.v === 1 ? 'V1' : GROUPS[1].options[s.i - 1] + (s.n === 2 ? ' · navbar' : '')
 
   return (
     <div className="pm" ref={root}>

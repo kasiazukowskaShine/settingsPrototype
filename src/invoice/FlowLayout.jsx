@@ -37,7 +37,7 @@ export default function FlowLayout({ L, title, onBack, backLabel, actions, form,
     <div className={'modal focus' + (L.keepNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label={title}>
       <aside className="snav" aria-hidden="true" />
       <section className="mcol">
-        <ListLayout title={title} onBack={onBack} backLabel={backLabel} onClose={onBack} preview={preview} footer={actions}>
+        <ListLayout title={title} onBack={onBack} backLabel={backLabel} preview={preview} footer={actions}>
           {form}
         </ListLayout>
       </section>

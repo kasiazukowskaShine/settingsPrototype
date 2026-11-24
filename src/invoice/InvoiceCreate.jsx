@@ -65,7 +65,7 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
   return (
     <>
       {L.flow === 'i3' ? (
-        <div className={'i3 full' + (L.lumen ? ' lm' : '') + (L.keepNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label="Create invoice">
+        <div className={'i3 full' + (L.fit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.keepNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label="Create invoice">
           <aside className="i3-nav" aria-hidden="true" />
           <div className="i3-main">
             <header className="i3-head ed">
@@ -93,7 +93,6 @@ export default function InvoiceCreate({ L, toast, onClose, onFinalise, onSetting
               title="Create invoice"
               onBack={leave}
               backLabel="Back to invoices"
-              onClose={leave}
               preview={preview}
               footer={actions}
             >

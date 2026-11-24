@@ -112,20 +112,10 @@ export default function InvoiceView({ L, inv, toast, onClose }) {
   )
   const preview = <Paper s={{ ...PV, title: label }} />
 
-  const switcher = (
-    <div className="proto-picker" style={{ left: 'auto', right: 24 }} role="group" aria-label="Prototype: invoice state">
-      {Object.entries(STATES).map(([k, v]) => (
-        <button key={k} className="proto-picker-item" data-active={st === k ? '' : undefined} onClick={() => setSt(k)}>
-          {v.label}
-        </button>
-      ))}
-    </div>
-  )
-
   return (
     <>
       {L.flow === 'i3' ? (
-        <div className={'i3 full' + (L.viewFit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.viewNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label={label}>
+        <div className={'i3 full' + (L.fit ? ' fit' : '') + (L.lumen ? ' lm' : '') + (L.viewNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label={label}>
           <aside className="i3-nav" aria-hidden="true" />
           <div className="i3-main">
             <header className="i3-head ed">
@@ -145,13 +135,12 @@ export default function InvoiceView({ L, inv, toast, onClose }) {
         <div className={'modal focus' + (L.viewNav ? ' kn' : '')} role="dialog" aria-modal="true" aria-label={label}>
           <aside className="snav" aria-hidden="true" />
           <section className="mcol">
-            <ListLayout title={label} onBack={onClose} backLabel="Back to invoices" onClose={onClose} preview={preview} footer={actions}>
+            <ListLayout title={label} onBack={onClose} backLabel="Back to invoices" preview={preview} footer={actions}>
               {body}
             </ListLayout>
           </section>
         </div>
       )}
-      {switcher}
     </>
   )
 }

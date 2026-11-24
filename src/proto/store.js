@@ -5,9 +5,10 @@ import { useSyncExternalStore } from 'react'
 //   i -> ?i=  V2 layout (see LAYOUTS below)
 //   d -> ?d=  V1 Invoices/Quotes entry: create from default vs start from a template
 //   p -> ?p=  which side the preview sits on (1 right, 2 left)
-const PARAMS = { v: 'v', i: 'i', d: 'd', p: 'p' }
-const MAX = { v: 2, i: 5, d: 2, p: 2 } // variants per prototype
-const DEF = { v: 2, i: 1, d: 1, p: 1 } // V2 is the current structure, so it opens there
+//   n -> ?n=  the app navbar in create flows and on the invoice page (1 hidden, 2 visible)
+const PARAMS = { v: 'v', i: 'i', d: 'd', p: 'p', n: 'n' }
+const MAX = { v: 2, i: 3, d: 2, p: 2, n: 2 } // variants per prototype
+const DEF = { v: 2, i: 1, d: 1, p: 1, n: 1 } // V2 is the current structure, so it opens there
 const params = new URLSearchParams(location.search)
 const state = {}
 for (const k of Object.keys(PARAMS)) state[k] = Math.min(MAX[k], Math.max(1, parseInt(params.get(PARAMS[k]), 10) || DEF[k]))
@@ -40,25 +41,29 @@ export function useVariant(key) {
  *   flow      create invoice / add a purchase shell ('i3' = header actions + 50/50, 'modal' = bottom bar)
  *   keepNav   create flows sit beside the app navbar instead of covering it
  *   viewNav   same, for the invoice page you land on after finalising
- *   viewFit   the invoice page sizes its preview to fit, instead of the big scrolling one
+ *   fit       invoice previews (template editor, create invoice, invoice page) size to fit instead of scrolling
+ * The navbar setting (?n=) fills in keepNav and viewNav for every layout (create invoice, add a purchase and
+ * the invoice page you land on). Ideas 2 and 3 both open settings as an inset modal sheet.
  */
 export const LAYOUTS = [
-  { id: 'lumen', settings: 'three', sheet: false, lumen: true, flow: 'i3', keepNav: false, viewNav: false, viewFit: false },
-  { id: 'i2', settings: 'modal', sheet: false, lumen: false, flow: 'modal', keepNav: false, viewNav: false, viewFit: false },
-  { id: 'i2b', settings: 'modal', sheet: true, lumen: false, flow: 'modal', keepNav: true, viewNav: true, viewFit: false },
+  { id: 'lumen', layout: (nav) => ({ settings: 'three', sheet: false, lumen: true, flow: 'i3', keepNav: nav, viewNav: nav, fit: false }) },
+  { id: 'i2', layout: (nav) => ({ settings: 'modal', sheet: true, lumen: false, flow: 'modal', keepNav: nav, viewNav: nav, fit: false }) },
   // idea 3 builds the invoice full screen, then lands on the invoice page inside the app shell
-  { id: 'i3', settings: 'three', sheet: true, lumen: false, flow: 'i3', keepNav: false, viewNav: true, viewFit: true },
-  { id: 'i3b', settings: 'three', sheet: true, lumen: false, flow: 'i3', keepNav: true, viewNav: true, viewFit: false },
+  { id: 'i3', layout: (nav) => ({ settings: 'three', sheet: true, lumen: false, flow: 'i3', keepNav: nav, viewNav: nav, fit: true }) },
 ]
 
 // V1 keeps its own settings component and the plain full-screen create flows it shipped with.
-const V1 = { id: 'v1', settings: 'one', sheet: false, lumen: false, flow: 'modal', keepNav: false, viewNav: false, viewFit: false }
+const V1 = { id: 'v1', settings: 'one', sheet: false, lumen: false, flow: 'modal', keepNav: false, viewNav: false, fit: false }
 
-/** The layout the app should render for the selected version. */
+/** The layout the app should render for the selected version and navbar setting. */
 export function useLayout() {
   const v = useVariant('v')
   const i = useVariant('i')
-  return v === 1 ? V1 : LAYOUTS[i - 1]
+  const n = useVariant('n')
+  if (v === 1) return V1
+  const l = LAYOUTS[i - 1]
+  const nav = n === 2
+  return { id: l.id + (nav ? '-nav' : ''), ...l.layout(nav) }
 }
 
 // Prototype UI (variant pickers) shows in dev, or in a build made with VITE_PROTO=1 (the Pages deploy).

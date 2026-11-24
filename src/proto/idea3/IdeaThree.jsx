@@ -13,7 +13,7 @@ import './idea3.css'
  */
 const PAGES = ['Logo & branding', 'Payments & reminders', 'Compliance', 'E-invoices']
 
-export default function IdeaThree({ templates, setTemplates, toast, onClose, lumen = false }) {
+export default function IdeaThree({ templates, setTemplates, toast, onClose, lumen = false, fit = false }) {
   const [E, setE] = useState(null) // { mode, draft, orig, tab, err }
   const [hover, setHover] = useState(0)
   const [dlg, setDlg] = useState(null)
@@ -127,7 +127,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
 
   return (
     <>
-      <div className={'i3' + (lumen ? ' lm' : ' sheet') + (E ? ' full' : '')} role="dialog" aria-modal="true" aria-label={E ? 'Template editor' : 'Settings'}>
+      <div className={'i3' + (lumen ? ' lm' : ' sheet') + (fit ? ' fit' : '') + (E ? ' full' : '')} role="dialog" aria-modal="true" aria-label={E ? 'Template editor' : 'Settings'}>
         {(
           <aside className="snav i3-nav" aria-hidden={E ? 'true' : undefined} inert={!!E}>
             <h3>Settings</h3>

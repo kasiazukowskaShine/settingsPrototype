@@ -69,14 +69,14 @@
 .i3.lm .i3-list{padding:0 0 16px;max-width:580px;margin:0 auto}
 .i3.lm .i3-pv{padding:56px 40px}
 
-/* Idea 3B: create flows sit inside the app shell, the left navbar stays visible (and inert while the flow is open) */
+/* Navbar visible (ideas 2 and 3): create flows sit inside the app shell, the left navbar stays visible (and inert while the flow is open) */
 .i3.kn{inset:0 0 0 232px}
 .i3.kn.full .i3-body{grid-template-columns:1fr 1fr}
 @media (max-width:900px){.i3.kn{inset:0}}
-/* 3B keeps the white canvas; 2B is the grounded alternative */
+/* idea 3 keeps the white canvas; idea 2 is the grounded alternative */
 .i3.kn.full .i3-body{background:var(--bg)}
 
-/* Ideas 3 and 3B: the preview fills its column and scrolls, instead of shrinking to fit the height */
+/* Idea 3: the preview fills its column and scrolls, instead of shrinking to fit the height */
 .i3:not(.lm) .i3-pv{align-items:flex-start;overflow-y:auto;padding:24px 32px 32px}
 /* the paper's top edge lines up with the first form card */
 .i3:not(.lm).full .i3-pv{padding-top:16px}
@@ -84,9 +84,11 @@
 /* settings pages (not the template editor): the preview fits its column, no scrolling */
 .i3.sheet:not(.lm):not(.full) .i3-pv{align-items:center;overflow:hidden}
 .i3.sheet:not(.lm):not(.full) .i3-pv .pw{width:min(100%,calc((100dvh - 16px - var(--i3h) - 56px) * .7071))}
-/* idea 3's invoice page is for reading, not building, so its preview fits without scrolling */
+/* idea 3: every invoice preview (template editor, create invoice, invoice page) fits its column without scrolling */
 .i3.fit:not(.lm) .i3-pv{align-items:center;overflow:hidden}
 .i3.fit:not(.lm) .i3-pv .pw{width:min(100%,calc((100dvh - var(--i3h) - 48px) * .7071))}
+/* the template editor opens as an inset sheet, 8px from each screen edge */
+.i3.fit.sheet.full:not(.lm) .i3-pv .pw{width:min(100%,calc((100dvh - 16px - var(--i3h) - 48px) * .7071))}
 
 /* prototype setting: preview on the left, form on the right */
 [data-pv="left"] .i3-left{order:2}
@@ -97,3 +99,9 @@
 [data-pv="left"] .i3.sheet.full .i3-body{grid-template-columns:calc(50vw - 8px) 1fr}
 [data-pv="left"] .i3.kn.full .i3-body,[data-pv="left"] .i3.lm .i3-body,[data-pv="left"] .i3.lm.full .i3-body{grid-template-columns:1fr 1fr}
 [data-pv="left"] .i3-body.solo,[data-pv="left"] .i3.sheet .i3-body.solo{grid-template-columns:minmax(0,1fr)}
+
+/* Idea 3 editors (template, create invoice, add a purchase, invoice page): form 55%, preview 45%.
+   The form keeps the width it had at 50/50 and sits centred in its wider column. */
+.i3:not(.lm).full .i3-body{grid-template-columns:minmax(0,55fr) minmax(0,45fr)}
+[data-pv="left"] .i3:not(.lm).full .i3-body{grid-template-columns:minmax(0,45fr) minmax(0,55fr)}
+.i3.sheet.full:not(.lm) .i3-card{max-width:calc(50vw - 72px);margin-inline:auto}
