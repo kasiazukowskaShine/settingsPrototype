@@ -4,9 +4,10 @@ name: Deploy prototype to GitHub Pages
 #   main       -> https://<user>.github.io/<repo>/
 #   layout-v2  -> https://<user>.github.io/<repo>/layout-v2/
 #   layout-v2-previewright -> https://<user>.github.io/<repo>/layout-v2-previewright/
+#   layout-v3  -> https://<user>.github.io/<repo>/layout-v3/
 on:
   push:
-    branches: [main, layout-v2, layout-v2-previewright]
+    branches: [main, layout-v2, layout-v2-previewright, layout-v3]
   workflow_dispatch:
 
 permissions:
@@ -34,6 +35,10 @@ jobs:
         with:
           ref: layout-v2-previewright
           path: v2pr-src
+      - uses: actions/checkout@v4
+        with:
+          ref: layout-v3
+          path: v3-src
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -52,6 +57,11 @@ jobs:
         run: npm ci && npm run build
         env:
           VITE_PROTO: '1'
+      - name: Build layout-v3
+        working-directory: v3-src
+        run: npm ci && npm run build
+        env:
+          VITE_PROTO: '1'
       - name: Assemble site
         run: |
           mkdir site
@@ -60,6 +70,8 @@ jobs:
           cp -r v2-src/dist/. site/layout-v2/
           mkdir site/layout-v2-previewright
           cp -r v2pr-src/dist/. site/layout-v2-previewright/
+          mkdir site/layout-v3
+          cp -r v3-src/dist/. site/layout-v3/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
