@@ -105,3 +105,12 @@
 .i3:not(.lm).full .i3-body{grid-template-columns:minmax(0,55fr) minmax(0,45fr)}
 [data-pv="left"] .i3:not(.lm).full .i3-body{grid-template-columns:minmax(0,45fr) minmax(0,55fr)}
 .i3.sheet.full:not(.lm) .i3-card{max-width:calc(50vw - 72px);margin-inline:auto}
+
+/* V1 in Lumen and idea 3: the page's buttons sit in a footer bar under the page, right aligned */
+.i3-foot{flex:none;position:sticky;bottom:0;z-index:2;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:0 32px 24px;background:var(--bg)}
+@media (max-width:900px){.i3-foot{padding:12px 16px 16px}}
+/* idea 3's fitted preview leaves room for that footer (68px) */
+.i3.sheet.fit:not(.lm):has(.i3-foot) .i3-pv .pw{width:min(100%,calc((100dvh - 16px - var(--i3h) - 56px - 68px) * .7071))}
+/* in the full-screen editor the white footer sits under the grey canvas: give it room above the buttons */
+.i3.full:not(.lm) .i3-foot{padding-top:16px}
+.i3.sheet.fit.full:not(.lm):has(.i3-foot) .i3-pv .pw{width:min(100%,calc((100dvh - 16px - var(--i3h) - 56px - 84px) * .7071))}

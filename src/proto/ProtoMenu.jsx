@@ -4,19 +4,17 @@ import './picker.css'
 
 /**
  * Prototype settings. One menu instead of a stack of pills: pick the version, the layout it renders,
- * whether create flows keep the app navbar, which side the preview sits on, and (on V1) how
- * Invoices/Quotes are entered.
+ * whether create flows keep the app navbar, and which side the preview sits on.
  */
 const GROUPS = [
   { key: 'v', label: 'Version', options: ['V1', 'V2'] },
-  { key: 'i', label: 'Layout', options: ['Lumen as is', 'Idea 2', 'Idea 3'], when: (s) => s.v === 2 },
-  { key: 'n', label: 'Navbar in create flows', options: ['Hidden', 'Visible'], when: (s) => s.v === 2 },
-  { key: 'd', label: 'Document entry', options: ['Create from default', 'Start from a template'], when: (s) => s.v === 1 },
+  { key: 'i', label: 'Layout', options: ['Lumen as is', 'Idea 2', 'Idea 3'] },
+  { key: 'n', label: 'Navbar in create flows', options: ['Hidden', 'Visible'] },
   { key: 'p', label: 'Preview side', options: ['Right', 'Left'] },
 ]
 
 export default function ProtoMenu() {
-  const s = { v: useVariant('v'), i: useVariant('i'), d: useVariant('d'), p: useVariant('p'), n: useVariant('n') }
+  const s = { v: useVariant('v'), i: useVariant('i'), p: useVariant('p'), n: useVariant('n') }
   const [open, setOpen] = useState(false)
   const root = useRef(null)
   const groups = GROUPS.filter((g) => !g.when || g.when(s))
@@ -38,7 +36,7 @@ export default function ProtoMenu() {
   useEffect(() => {
     const onKey = (e) => {
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return
-      if (e.metaKey || e.ctrlKey || e.altKey || s.v !== 2) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       const n = parseInt(e.key, 10)
       const max = GROUPS[1].options.length
       if (n >= 1 && n <= max) setVariant('i', n)
@@ -49,7 +47,7 @@ export default function ProtoMenu() {
     return () => document.removeEventListener('keydown', onKey)
   }, [s.v, s.i])
 
-  const label = s.v === 1 ? 'V1' : GROUPS[1].options[s.i - 1] + (s.n === 2 ? ' · navbar' : '')
+  const label = (s.v === 1 ? 'V1 · ' : '') + GROUPS[1].options[s.i - 1] + (s.n === 2 ? ' · navbar' : '')
 
   return (
     <div className="pm" ref={root}>

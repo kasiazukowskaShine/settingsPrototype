@@ -66,7 +66,7 @@ export default function App() {
       {buying && <PurchaseCreate L={L} toast={toast} onClose={() => setBuying(false)} onAdd={(p) => { setPurchases((x) => [...x, p]); setBuying(false) }} />}
       <div className="modal-root" data-switch={switching ? '' : undefined}>
         {/* PROTO:idea start */}
-        {open && PROTO && L.settings === 'one' && <IdeaOne toast={toast} onClose={() => setOpen(false)} />}
+        {open && PROTO && L.settings === 'one' && <IdeaOne L={L} toast={toast} onClose={() => setOpen(false)} />}
         {open && PROTO && L.settings === 'three' && <IdeaThree lumen={L.lumen} fit={L.fit} templates={templates} setTemplates={setTemplates} toast={toast} onClose={() => setOpen(false)} />}
         {open && (!PROTO || L.settings === 'modal') && <SettingsModal sheet={PROTO && L.sheet} templates={templates} setTemplates={setTemplates} toast={toast} onClose={() => setOpen(false)} />}
         {/* PROTO:idea end */}

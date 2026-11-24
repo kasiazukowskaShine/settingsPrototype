@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ICONS } from '../../Icon.jsx'
 import { clone, newTpl, setP } from '../../data.js'
-import { useVariant } from '../store.js'
+import { ShellContext } from '../../ListLayout.jsx'
 import BrandPage from './BrandPage.jsx'
 import PresetsPage from './PresetsPage.jsx'
 import DocList from './DocList.jsx'
@@ -38,8 +38,12 @@ function initial() {
 // Kept outside React so what was saved survives closing and reopening the modal.
 let cache = null
 
-/** Idea 1: each document type has its own template list; branding and presets are their own pages. */
-export default function IdeaOne({ toast, onClose }) {
+/**
+ * Idea 1 (V1): each document type has its own template list; branding and presets are their own pages.
+ * `L` is the selected layout: idea 2 keeps the settings modal (inset as a sheet), idea 3 and Lumen render the same
+ * pages in their frame (settings nav left, header actions, preview right; template editors go full screen).
+ */
+export default function IdeaOne({ toast, onClose, L }) {
   const [saved, setSaved] = useState(() => cache || initial())
   const [page, setPage] = useState('brand')
   const [E, setE] = useState(null) // template editor: { type, mode, draft, orig }
@@ -102,18 +106,14 @@ export default function IdeaOne({ toast, onClose }) {
   }
 
   // With only the default template, Invoices/Quotes show its settings directly instead of a list.
-  // Variant 2 ("start from a template") always shows the list, even with just the default template.
-  const entry = useVariant('d')
   const isDocPage = page === 'inv' || page === 'quo'
-  const onlyDefault = isDocPage && entry === 1 && saved.docs[page].length === 1
+  const onlyDefault = isDocPage && saved.docs[page].length === 1
   useEffect(() => {
     if (onlyDefault && !E) {
       const t = saved.docs[page][0]
       setE({ type: page, mode: 'edit', defaults: true, draft: clone(t), orig: clone(t) })
-    } else if (entry === 2 && E?.defaults) {
-      setE(null) // switched away from the defaults page: land on the list
     }
-  }, [onlyDefault, entry, E, page, saved.docs])
+  }, [onlyDefault, E, page, saved.docs])
 
   const set = (path, val) =>
     setE((e) => {
@@ -212,6 +212,28 @@ export default function IdeaOne({ toast, onClose }) {
     body = null // the defaults editor is set up by the effect above
   } else if (isDocPage) {
     body = <DocList type={page} title={TITLE[page]} list={saved.docs[page]} onOpen={(id) => openEditor(page, id)} onCreate={() => openCreate(page)} onClose={() => askDiscard(onClose)} {...shared} />
+  } else if (L.shell === 'i3') {
+    body = (
+      <>
+        <header className="i3-head">
+          <h2>{NAV.find((n) => n[0] === page)[1]}</h2>
+          <div className="i3-acts">
+            <button className="lv-x" onClick={() => askDiscard(onClose)} aria-label="Close settings">
+              {ICONS.close()}
+            </button>
+          </div>
+        </header>
+        <div className="i3-body solo">
+          <div className="i3-left">
+            <div className="i3-card">
+              <div className="ph-page">
+                <p>This page is not part of the prototype.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    )
   } else {
     body = (
       <div className="ph-page">
@@ -221,28 +243,16 @@ export default function IdeaOne({ toast, onClose }) {
     )
   }
 
-  return (
-    <>
-      <div className={'modal'} role="dialog" aria-modal="true" aria-label="Settings">
-        <aside className="snav">
-          <h3>Settings</h3>
-          <div className="sgrp">
-            {ICONS.receipt()}Documents{ICONS.chevDown('ch')}
-          </div>
-          {NAV.map(([key, label]) => (
-            <button key={key} className={'sit' + (page === key ? ' on' : '')} onClick={() => go(key)}>
-              {label}
-            </button>
-          ))}
-        </aside>
-        <section className="mcol" ref={mcol}>
-          <div id="view">{body}</div>
-        </section>
-        <button className="xbtn" onClick={() => askDiscard(onClose)} aria-label="Close settings">
-          {ICONS.close()}
-        </button>
-      </div>
+  const nav = NAV.map(([key, label]) => (
+    <button key={key} className={'sit' + (page === key ? ' on' : '')} onClick={() => go(key)}>
+      {label}
+    </button>
+  ))
+  // a template editor reached from a list goes full screen; the defaults editor is a settings page
+  const full = !!E && !E.defaults
 
+  const dialog = (
+    <>
       {dlg && (
         <div className="dlg">
           <div className="bx" role="alertdialog" aria-labelledby="idlgt">
@@ -266,7 +276,48 @@ export default function IdeaOne({ toast, onClose }) {
           </div>
         </div>
       )}
+    </>
+  )
 
+  if (L.shell === 'i3') {
+    return (
+      <>
+        <div className={'i3' + (L.lumen ? ' lm' : ' sheet') + (L.fit ? ' fit' : '') + (full ? ' full' : '')} role="dialog" aria-modal="true" aria-label={full ? 'Template editor' : 'Settings'}>
+          <aside className="snav i3-nav" aria-hidden={full ? 'true' : undefined} inert={full}>
+            <h3>Settings</h3>
+            <div className="sgrp">
+              {ICONS.receipt()}Documents{ICONS.chevDown('ch')}
+            </div>
+            {nav}
+          </aside>
+          <div className="i3-main" ref={mcol}>
+            <ShellContext.Provider value={L.lumen ? 'lumen' : 'i3'}>{body}</ShellContext.Provider>
+          </div>
+        </div>
+        {dialog}
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div className={'modal' + (L.sheet ? ' sheet' : '')} role="dialog" aria-modal="true" aria-label="Settings">
+        <aside className="snav">
+          <h3>Settings</h3>
+          <div className="sgrp">
+            {ICONS.receipt()}Documents{ICONS.chevDown('ch')}
+          </div>
+          {nav}
+        </aside>
+        <section className="mcol" ref={mcol}>
+          <div id="view">{body}</div>
+        </section>
+        <button className="xbtn" onClick={() => askDiscard(onClose)} aria-label="Close settings">
+          {ICONS.close()}
+        </button>
+      </div>
+
+      {dialog}
     </>
   )
 }
