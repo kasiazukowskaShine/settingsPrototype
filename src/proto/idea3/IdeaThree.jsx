@@ -4,6 +4,7 @@ import { Form } from '../../TemplateEditor.jsx'
 import { ICONS } from '../../Icon.jsx'
 import SpotlightSearch from '../../SpotlightSearch.jsx'
 import { TYL, clone, eff, newTpl, setP } from '../../data.js'
+import TemplateWizard, { wizardDraft } from './TemplateWizard.jsx'
 import './idea3.css'
 
 /**
@@ -13,8 +14,10 @@ import './idea3.css'
  */
 const PAGES = ['Logo & branding', 'Payments & reminders', 'Compliance', 'E-invoices']
 
-export default function IdeaThree({ templates, setTemplates, toast, onClose, lumen = false, sheet = true, fit = false }) {
+export default function IdeaThree({ templates, setTemplates, toast, onClose, lumen = false, sheet = true, fit = false, wizard = false }) {
   const [E, setE] = useState(null) // { mode, draft, orig, tab, err }
+  const [W, setW] = useState(null) // V3: draft for the step-by-step create wizard
+  const wDirty = useRef(false)
   const [hover, setHover] = useState(0)
   const [dlg, setDlg] = useState(null)
   const [page, setPage] = useState('') // '' = templates list, otherwise a placeholder settings page
@@ -33,6 +36,10 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
   const openCreate = () => {
     const t = newTpl('', false)
     t.updated = 'just now'
+    if (wizard) {
+      wDirty.current = false
+      return setW(wizardDraft(t))
+    }
     setE({ mode: 'create', draft: t, orig: clone(t), tab: 'general', err: false })
   }
   const openEdit = (id, tab = 'general', field) => {
@@ -83,23 +90,28 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
     toast('Terms copied from ' + (o === 'inv' ? 'invoices' : 'quotes'))
   }
 
+  const closeWizard = () => (wDirty.current ? setDlg({ msg: 'Your new template hasn’t been saved.', next: () => setW(null) }) : setW(null))
   const save = (asDraft) => {
     const d = clone(E.draft)
     if (!d.name.trim()) {
       setE({ ...E, err: true, tab: 'general' })
       return
     }
+    commit(d, asDraft, E.mode)
+  }
+  const commit = (d, asDraft, mode) => {
     d.name = d.name.trim()
     d.updated = 'just now'
     d.draft = asDraft
     if (asDraft) d.isDef = false
-    let next = E.mode === 'create' ? [...templates, d] : templates.map((x) => (x.id === d.id ? d : x))
+    let next = mode === 'create' ? [...templates, d] : templates.map((x) => (x.id === d.id ? d : x))
     if (d.isDef) next = next.map((x) => ({ ...x, isDef: x.id === d.id }))
     if (!next.some((x) => x.isDef)) next[0] = { ...next[0], isDef: true, draft: false }
     setTemplates(next)
     setHover(next.findIndex((x) => x.id === d.id))
-    toast(asDraft ? 'Draft saved.' : E.mode === 'create' ? 'Template created. It now appears when you create a document.' : 'Template saved. Changes apply to new documents.')
+    toast(asDraft ? 'Draft saved.' : mode === 'create' ? 'Template created. It now appears when you create a document.' : 'Template saved. Changes apply to new documents.')
     backToList()
+    setW(null)
   }
 
   useEffect(() => {
@@ -108,12 +120,13 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
 
   // Escape closes the innermost layer: dialog, editor, then settings.
   const latest = useRef()
-  latest.current = { dlg, E, askDiscard, onClose }
+  latest.current = { dlg, E, W, askDiscard, onClose, closeWizard }
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Escape') return
       const s = latest.current
       if (s.dlg) setDlg(null)
+      else if (s.W) s.closeWizard()
       else if (s.E) s.askDiscard(() => setE(null))
       else s.onClose()
     }
@@ -127,9 +140,10 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
 
   return (
     <>
-      <div className={'i3' + (lumen ? ' lm' : '') + (sheet ? ' sheet' : '') + (fit ? ' fit' : '') + (E ? ' full' : '')} role="dialog" aria-modal="true" aria-label={E ? 'Template editor' : 'Settings'}>
-        {(
-          <aside className="snav i3-nav" aria-hidden={E ? 'true' : undefined} inert={!!E}>
+      {/* One frame for list, editor and V3 wizard, so switching between them animates inside it instead of swapping it */}
+      <div className={'i3' + (lumen || W ? ' lm' : '') + (sheet || W ? ' sheet' : '') + (fit && !W ? ' fit' : '') + (E ? ' full' : '') + (W ? ' wz' : '')} role="dialog" aria-modal="true" aria-label={W ? 'New template' : E ? 'Template editor' : 'Settings'}>
+        {/* the settings menu stays mounted under the wizard too, so it can slide out (and back) like it does for the editor */}
+        <aside className="snav i3-nav" aria-hidden={E || W ? 'true' : undefined} inert={!!(E || W)}>
             <h3>Settings</h3>
             <SpotlightSearch templates={templates} onPick={gotoRes} />
             <div className="sgrp">
@@ -143,8 +157,10 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
             <button className={'sit' + (!page ? ' on' : '')} onClick={() => setPage('')}>
               Templates
             </button>
-          </aside>
-        )}
+        </aside>
+        {W ? (
+          <TemplateWizard draft={W} onSave={(d, asDraft) => commit(d, asDraft, 'create')} onClose={closeWizard} onDirty={(v) => (wDirty.current = v)} />
+        ) : (
         <div className="i3-main">
         <header className={'i3-head' + (E ? ' ed' : '')}>
           {E ? (
@@ -243,6 +259,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
           )}
         </div>
         </div>
+        )}
       </div>
 
       {dlg && (

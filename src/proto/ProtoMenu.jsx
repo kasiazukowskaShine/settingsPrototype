@@ -7,7 +7,7 @@ import './picker.css'
  * whether create flows keep the app navbar, and which side the preview sits on.
  */
 const GROUPS = [
-  { key: 'v', label: 'Version', options: ['V1', 'V2'] },
+  { key: 'v', label: 'Version', options: ['V1', 'V2', 'V3'] },
   { key: 'i', label: 'Layout', options: ['Lumen as is', 'Idea 2', 'Idea 3'] },
   { key: 'n', label: 'Navbar in create flows', options: ['Hidden', 'Visible'] },
   { key: 'p', label: 'Preview side', options: ['Right', 'Left'] },
@@ -47,7 +47,7 @@ export default function ProtoMenu() {
     return () => document.removeEventListener('keydown', onKey)
   }, [s.v, s.i])
 
-  const label = (s.v === 1 ? 'V1 · ' : '') + GROUPS[1].options[s.i - 1] + (s.n === 2 ? ' · navbar' : '')
+  const label = (s.v !== 2 ? `V${s.v} · ` : '') + GROUPS[1].options[s.i - 1] + (s.n === 2 ? ' · navbar' : '')
 
   return (
     <div className="pm" ref={root}>

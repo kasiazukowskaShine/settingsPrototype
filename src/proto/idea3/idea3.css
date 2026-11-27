@@ -49,7 +49,7 @@
 }
 .i3 .tcard:hover,.i3 .tcard.on{background:var(--bg)}
 
-/* Lumen as is: full-page white editor, 32px page margin, grey preview panel with a shadowed sheet */
+/* Lumen as is: white editor, 32px page margin, grey preview panel with flat bordered paper */
 .i3.lm.full .i3-head{padding:0 32px}
 .i3.lm.full .i3-body{background:var(--bg);padding:0 32px 24px;gap:24px;grid-template-columns:1fr 1fr}
 .i3.lm.full .i3-left{padding:0}
@@ -57,11 +57,12 @@
 .i3.lm.full .i3-tabs{padding:24px 24px 0}
 .i3.lm.full .i3-form{padding:24px 24px 32px;max-width:none}
 .i3.lm.full .i3-pv{background:var(--bg-2);padding:56px 40px}
-.i3.lm .i3-pv .pw{border:0;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
+/* flat paper like the other versions (grey hairline, no shadow) with a 16px radius, on the grey panel */
+.i3.lm .i3-pv .pw{border:1px solid var(--line);border-radius:16px;box-shadow:none}
 .i3.lm .i3-acts .lv-x{flex:none}
 @media (max-width:900px){.i3.lm.full .i3-body{padding:0 16px 16px}.i3.lm.full .i3-head{padding:0 16px}}
 .i3.lm .i3-pv{background:var(--bg-2)}
-/* Lumen layout for the settings list too: same 88px header, 32px page margin and inset grey preview panel as the editor */
+/* Lumen layout for the settings list too: same 88px header, 32px page margin and preview panel as the editor */
 .i3.lm .i3-head{padding:0 32px}
 .i3.lm .i3-body{background:var(--bg);padding:0 32px 24px;gap:24px;grid-template-columns:1fr 1fr}
 .i3.lm .i3-body.solo{grid-template-columns:minmax(0,1fr)}

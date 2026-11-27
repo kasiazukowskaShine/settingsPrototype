@@ -58,21 +58,21 @@ function Flag({ code }) {
   )
 }
 
-const LANGUAGES = [
+export const LANGUAGES = [
   { value: 'French', flag: 'fr' },
   { value: 'English', flag: 'gb' },
   { value: 'German', flag: 'de' },
   { value: 'Spanish', flag: 'es' },
   { value: 'Italian', flag: 'it' },
 ]
-const CURRENCIES = [
+export const CURRENCIES = [
   { value: 'EUR', flag: 'fr' },
   { value: 'USD', flag: 'us' },
   { value: 'GBP', flag: 'gb' },
 ]
 
 /** Select with a flag beside each option, which a native <select> can't render. */
-function FlagSelect({ value, opts, onChange, labelledBy }) {
+export function FlagSelect({ value, opts, onChange, labelledBy }) {
   const [open, setOpen] = useState(false)
   const [act, setAct] = useState(0)
   const root = useRef(null)
@@ -136,7 +136,7 @@ function FlagSelect({ value, opts, onChange, labelledBy }) {
   )
 }
 
-const ITEM_TYPES = ['Product', 'Service', 'Mixed']
+export const ITEM_TYPES = ['Product', 'Service', 'Mixed']
 export const PAYMENT_TERMS = ['Due on receipt', '15 days', '30 days', '45 days', '60 days']
 
 function Row({ id, label, children }) {

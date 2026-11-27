@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 //   p -> ?p=  which side the preview sits on (1 right, 2 left)
 //   n -> ?n=  the app navbar in create flows and on the invoice page (1 hidden, 2 visible)
 const PARAMS = { v: 'v', i: 'i', p: 'p', n: 'n' }
-const MAX = { v: 2, i: 3, p: 2, n: 2 } // variants per prototype
+const MAX = { v: 3, i: 3, p: 2, n: 2 } // variants per prototype
 const DEF = { v: 2, i: 1, p: 1, n: 1 } // V2 is the current structure, so it opens there
 const params = new URLSearchParams(location.search)
 const state = {}
@@ -61,8 +61,9 @@ export function useLayout() {
   const l = LAYOUTS[i - 1]
   const nav = n === 2
   const base = l.layout(nav)
-  const id = (v === 1 ? 'v1-' : '') + l.id + (nav ? '-nav' : '')
-  return { id, ...base, shell: base.settings === 'modal' ? 'modal' : 'i3', settings: v === 1 ? 'one' : base.settings }
+  // V3 is V2 with the step-by-step create-template wizard (Lumen and idea 3; idea 2's settings modal has no wizard)
+  const vid = v === 1 ? 'v1-' : v === 3 ? 'v3-' : ''
+  return { ...base, id: vid + l.id + (nav ? '-nav' : ''), shell: base.settings === 'modal' ? 'modal' : 'i3', settings: v === 1 ? 'one' : base.settings, wizard: v === 3 }
 }
 
 // Prototype UI (variant pickers) shows in dev, or in a build made with VITE_PROTO=1 (the Pages deploy).
