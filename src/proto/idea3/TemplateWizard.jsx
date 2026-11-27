@@ -144,8 +144,8 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
     pick: (
       <div className="wz-pick">
         <div className="wz-q">
-          <b>Which settings do you want to customise?</b>
-          <span>Pick documents for which you need custom settings.</span>
+          <b>What should this template change?</b>
+          <span>Anything you don’t pick keeps your default settings.</span>
         </div>
         <div className="wz-docs">{PICKS.map(card)}</div>
       </div>
