@@ -11,7 +11,7 @@
 .i3.wz:has(.wz-main.pick) .wz-nav{transform:translateX(-100%);opacity:0;visibility:hidden;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .2s ease,visibility 0s .35s}
 .wz-head h2{animation:fade-in .2s ease-out both}
 .wz-foot{animation:fade-in .25s ease-out both}
-.wz-nav{border-right:1px solid var(--line);padding:24px 12px;overflow:hidden auto;width:232px}
+.wz-nav{border-right:1px solid var(--line);padding:24px 12px 24px 24px;overflow:hidden auto;width:232px}
 .wz-nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
 .wz-st{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:0;text-align:left;font:inherit;font-size:14px;line-height:20px;color:var(--fg);border-radius:12px}
 .wz-st:disabled{cursor:default}
