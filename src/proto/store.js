@@ -36,7 +36,7 @@ export function useVariant(key) {
  * create flows read traits instead of variant numbers:
  *   settings  which settings surface renders  ('three' = full screen, 'modal' = settings nav + content)
  *   sheet     settings opens inset over the dimmed page instead of edge to edge
- *   lumen     the full-page editor from the Figma file (no sheet)
+ *   lumen     the editor from the Figma file (white cards, grey preview), opened in the sheet
  *   flow      create invoice / add a purchase shell ('i3' = header actions + 50/50, 'modal' = bottom bar)
  *   keepNav   create flows sit beside the app navbar instead of covering it
  *   viewNav   same, for the invoice page you land on after finalising
@@ -47,7 +47,7 @@ export function useVariant(key) {
  * they render in ('modal' for idea 2, 'i3' for idea 3 and Lumen).
  */
 export const LAYOUTS = [
-  { id: 'lumen', layout: (nav) => ({ settings: 'three', sheet: false, lumen: true, flow: 'i3', keepNav: nav, viewNav: nav, fit: false }) },
+  { id: 'lumen', layout: (nav) => ({ settings: 'three', sheet: true, lumen: true, flow: 'i3', keepNav: nav, viewNav: nav, fit: false }) },
   { id: 'i2', layout: (nav) => ({ settings: 'modal', sheet: true, lumen: false, flow: 'modal', keepNav: nav, viewNav: nav, fit: false }) },
   // idea 3 builds the invoice full screen, then lands on the invoice page inside the app shell
   { id: 'i3', layout: (nav) => ({ settings: 'three', sheet: true, lumen: false, flow: 'i3', keepNav: nav, viewNav: nav, fit: true }) },

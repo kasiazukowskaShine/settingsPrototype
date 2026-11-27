@@ -282,7 +282,7 @@ export default function IdeaOne({ toast, onClose, L }) {
   if (L.shell === 'i3') {
     return (
       <>
-        <div className={'i3' + (L.lumen ? ' lm' : ' sheet') + (L.fit ? ' fit' : '') + (full ? ' full' : '')} role="dialog" aria-modal="true" aria-label={full ? 'Template editor' : 'Settings'}>
+        <div className={'i3' + (L.lumen ? ' lm' : '') + (L.sheet ? ' sheet' : '') + (L.fit ? ' fit' : '') + (full ? ' full' : '')} role="dialog" aria-modal="true" aria-label={full ? 'Template editor' : 'Settings'}>
           <aside className="snav i3-nav" aria-hidden={full ? 'true' : undefined} inert={full}>
             <h3>Settings</h3>
             <div className="sgrp">
