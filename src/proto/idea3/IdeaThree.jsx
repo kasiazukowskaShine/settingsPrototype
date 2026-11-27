@@ -5,6 +5,8 @@ import { ICONS } from '../../Icon.jsx'
 import SpotlightSearch from '../../SpotlightSearch.jsx'
 import { TYL, clone, eff, newTpl, setP } from '../../data.js'
 import TemplateWizard, { wizardDraft } from './TemplateWizard.jsx'
+import BrandingPage, { brandFor } from './BrandingPage.jsx'
+import { TemplatePreview } from './Layouts.jsx'
 import './idea3.css'
 
 /**
@@ -18,6 +20,14 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
   const [E, setE] = useState(null) // { mode, draft, orig, tab, err }
   const [W, setW] = useState(null) // V3: { draft, mode, start } for the step layout (create and edit)
   const wDirty = useRef(false)
+  const bDirty = useRef(false) // V3 Branding page has unsaved changes
+  const BRAND = 'Branding'
+  const pages = wizard ? [BRAND, ...PAGES.slice(1)] : PAGES
+  // V3: leaving the Branding page (another page, or closing settings) asks first when it has unsaved changes
+  const leave = (next) => {
+    if (page === BRAND && bDirty.current) setDlg({ msg: 'Your branding changes haven’t been saved.', next: () => ((bDirty.current = false), next()) })
+    else next()
+  }
   const [hover, setHover] = useState(0)
   const [dlg, setDlg] = useState(null)
   const [page, setPage] = useState('') // '' = templates list, otherwise a placeholder settings page
@@ -129,7 +139,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
 
   // Escape closes the innermost layer: dialog, editor, then settings.
   const latest = useRef()
-  latest.current = { dlg, E, W, askDiscard, onClose, closeWizard }
+  latest.current = { dlg, E, W, askDiscard, onClose, closeWizard, leave }
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Escape') return
@@ -137,7 +147,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
       if (s.dlg) setDlg(null)
       else if (s.W) s.closeWizard()
       else if (s.E) s.askDiscard(() => setE(null))
-      else s.onClose()
+      else s.leave(s.onClose)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
@@ -158,12 +168,12 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
             <div className="sgrp">
               {ICONS.receipt()}Documents{ICONS.chevDown('ch')}
             </div>
-            {PAGES.map((p) => (
-              <button key={p} className={'sit' + (page === p ? ' on' : '')} onClick={() => setPage(p)}>
+            {pages.map((p) => (
+              <button key={p} className={'sit' + (page === p ? ' on' : '')} onClick={() => page !== p && leave(() => setPage(p))}>
                 {p}
               </button>
             ))}
-            <button className={'sit' + (!page ? ' on' : '')} onClick={() => setPage('')}>
+            <button className={'sit' + (!page ? ' on' : '')} onClick={() => page && leave(() => setPage(''))}>
               Templates
             </button>
         </aside>
@@ -213,7 +223,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
                     Create template
                   </button>
                 )}
-                <button className="lv-x" onClick={onClose} aria-label="Close settings">
+                <button className="lv-x" onClick={() => leave(onClose)} aria-label="Close settings">
                   {ICONS.close()}
                 </button>
               </div>
@@ -221,6 +231,9 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
           )}
         </header>
 
+        {!E && page === BRAND ? (
+          <BrandingPage toast={toast} onDirty={(v) => (bDirty.current = v)} />
+        ) : (
         <div className={'i3-body' + (!E && page ? ' solo' : '')} ref={bodyRef}>
           <div className="i3-left">
             {E ? (
@@ -263,10 +276,12 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
           </div>
           {(E || !page) && (
             <aside className="i3-pv" aria-label="Preview">
-              <Paper s={eff(E ? E.draft : t, pv)} />
+              {/* V3: templates preview in their branding (own, or the company's from the Branding page) */}
+              {wizard && !E ? <TemplatePreview t={t} brand={brandFor(t)} /> : <Paper s={eff(E ? E.draft : t, pv)} />}
             </aside>
           )}
         </div>
+        )}
         </div>
         )}
       </div>

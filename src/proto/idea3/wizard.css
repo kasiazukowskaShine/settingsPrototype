@@ -1,5 +1,6 @@
 /* V3 settings modal: headers (and the wizard footer) sit 32px from the left edge and 24px from the right */
 .i3.v3 .i3-head,.i3.lm.v3 .i3-head{padding:0 24px 0 32px} /* .lm.v3 outranks idea3.css, which loads later */
+.i3.v3{--wzh:72px;--wzf:72px} /* header/footer bar heights for every V3 settings page (wizard and Branding) */
 /* V3 template wizard: step list | form + preview, actions in a footer bar. Sits in the same inset sheet as settings. */
 .i3.wz{grid-template-columns:232px minmax(0,1fr);--wzh:72px;--wzf:72px} /* the frame's column transition eases 270px -> 232px */
 /* Opening from the templates list works like the other versions' editor hand-off: the frame stays, the settings menu

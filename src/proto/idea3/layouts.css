@@ -1,0 +1,115 @@
+/* Document layouts (Layouts.jsx), values from the design references. Colours come from the brand:
+   --m main (titles, heavy rules, accents), --t text, --b background; --fh display face, --fb second face. */
+.dl-wrap{position:relative;width:100%;aspect-ratio:794/1123;overflow:hidden}
+.dl-scale{position:absolute;top:0;left:0;width:794px;height:1123px;transform-origin:0 0}
+.dl{--mu:color-mix(in srgb,var(--t) 66%,var(--b));--ln:color-mix(in srgb,var(--t) 16%,var(--b));width:794px;height:1123px;box-sizing:border-box;background:var(--b);color:var(--t);font-size:13px;line-height:1.5;display:flex;flex-direction:column;text-align:left}
+.dl *{box-sizing:border-box}
+.dl b{font-weight:600}
+.dl .mu{color:var(--mu)}
+.dl .r{text-align:right}
+/* Standard: the Templates page paper, inheriting brand text/background and the display face for its title */
+.dl-paper .pw{max-width:none;margin:0;border-radius:0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.i3-pv .dl-paper .pw,.i3.lm .i3-pv .dl-paper .pw{width:100%;max-width:none;border:0;border-radius:0;box-shadow:none}
+.dl-paper .paper{background:var(--b);color:var(--t)}
+.dl-paper .paper .tt b{font-family:var(--fh)}
+.dl-logo{display:block;max-height:48px;max-width:180px;object-fit:contain}
+
+/* 01 Classic */
+.dl-classic{padding:72px 64px;font-family:var(--fb)}
+.c-head{display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:32px;border-bottom:1px solid var(--m)}
+.c-head .dl-logo{margin-bottom:12px}
+.c-title{font-family:var(--fh);font-size:40px;font-weight:700;letter-spacing:-.5px;color:var(--m);line-height:1.2}
+.c-no{color:var(--mu);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.c-parties{display:flex;justify-content:space-between;padding:32px 0;gap:24px}
+.c-parties>div{display:flex;flex-direction:column;gap:4px}
+.c-h{font-family:var(--fh);font-size:18px;font-weight:700}
+.c-row{display:grid;grid-template-columns:4fr 1fr 1.4fr 1.4fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--ln)}
+.c-row>div:not(:first-child){text-align:right}
+.c-th{padding:12px 0;border-top:1px solid var(--m);border-bottom:1px solid var(--m);font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+.c-sum{align-self:flex-end;width:280px;display:flex;flex-direction:column;gap:10px;padding-top:24px}
+.c-sum>div{display:flex;justify-content:space-between}
+.c-total{align-items:baseline;padding-top:14px;border-top:1px solid var(--m);font-family:var(--fh);font-size:18px;font-weight:700}
+.c-total b{font-size:26px;font-weight:700;color:var(--m)}
+.c-foot{margin-top:auto;display:flex;justify-content:space-between;gap:32px;padding-top:24px;border-top:1px solid var(--m);font-size:12px}
+.c-foot>div{display:flex;flex-direction:column;gap:4px}
+
+/* 02 Swiss Mono */
+.dl-swiss{padding:56px;gap:40px;font-family:var(--fh)}
+.s-head{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding-bottom:24px;border-bottom:4px solid var(--m)}
+.s-title{grid-column:span 3;font-size:96px;font-weight:800;line-height:.9;letter-spacing:-4px;color:var(--m)}
+.s-title .dl-logo{margin-bottom:24px}
+.s-meta,.s-l,.s-row,.s-sum{font-family:var(--fb)}
+.s-meta{font-size:12px;text-align:right;align-self:end}
+.s-grid,.s-foot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.s-grid>div,.s-foot>div{display:flex;flex-direction:column;gap:6px}
+.s-l{font-size:11px;color:var(--mu);text-transform:uppercase}
+.s-amt{font-weight:800;font-size:22px;letter-spacing:-.5px}
+.s-row{display:grid;grid-template-columns:40px 1fr 60px 110px 110px;gap:16px;padding:14px 0;border-bottom:1px solid var(--ln);font-size:12px}
+.s-row>div:nth-child(n+3){text-align:right}
+.s-th{padding:10px 0;border-top:1px solid var(--m);border-bottom:1px solid var(--m);font-size:11px;text-transform:uppercase}
+.s-it{font-family:var(--fh);font-size:13px;font-weight:600}
+.s-sum{margin-left:50%;padding-left:12px;display:flex;flex-direction:column;gap:8px;font-size:12px}
+.s-sum>div{display:flex;justify-content:space-between}
+.s-total{padding:12px 0;border-top:4px solid var(--m);font-family:var(--fh);font-size:20px;font-weight:800}
+.s-foot{margin-top:auto;padding-top:20px;border-top:1px solid var(--m);font-size:12px}
+.s-foot>div{gap:4px}
+.s-notes{grid-column:span 2}
+
+/* 04 Grotesk Boxed */
+.dl-boxed{padding:48px;font-family:var(--fh)}
+.b-box{border:2px solid var(--m);display:flex;flex-direction:column;flex:1;min-height:0}
+.b-head{display:flex;justify-content:space-between;align-items:center;padding:28px 32px;border-bottom:2px solid var(--m)}
+.b-co{font-size:30px;font-weight:700;letter-spacing:-1px;color:var(--m)}
+.b-mono,.b-l,.b-row:not(.b-th)>div:not(.b-it),.b-th,.b-sum>div:not(.b-total),.b-foot{font-family:var(--fb)}
+.b-mono{font-size:12px}
+.b-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:2px solid var(--m)}
+.b-three>div{padding:20px 32px;display:flex;flex-direction:column;gap:4px}
+.b-three>div+div{border-left:2px solid var(--m)}
+.b-three b{font-weight:700}
+.b-l{font-size:11px;color:var(--mu)}
+.b-amt{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.b-row{display:grid;grid-template-columns:1fr 70px 110px 120px;border-bottom:1px solid var(--m)}
+.b-row>div{padding:16px}
+.b-row>div:first-child{padding-left:32px}
+.b-row>div:last-child{padding-right:32px}
+.b-row>div+div{text-align:right;border-left:1px solid var(--m)}
+.b-th{border-bottom:2px solid var(--m);font-size:11px;font-weight:700}
+.b-th>div{padding-top:12px;padding-bottom:12px}
+.b-it{font-weight:500}
+.b-fill{flex:1}
+.b-bottom{display:grid;grid-template-columns:1fr 300px;border-top:2px solid var(--m)}
+.b-pay{padding:20px 32px;display:flex;flex-direction:column;gap:4px;font-size:12px}
+.b-sum{border-left:2px solid var(--m);display:flex;flex-direction:column}
+.b-sum>div{display:flex;justify-content:space-between;padding:6px 32px 6px 20px;font-size:12px}
+.b-sum>div:first-child{padding-top:12px}
+.b-total{padding:14px 32px 14px 20px!important;border-top:2px solid var(--m);font-weight:700;font-size:18px!important}
+.b-foot{padding:14px 32px;border-top:2px solid var(--m);font-size:11px;display:flex;justify-content:space-between}
+
+/* 05 Condensed */
+.dl-condensed{padding:64px;font-size:14px;font-family:var(--fb)}
+.k-logo{margin-bottom:24px}
+.k-head{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:20px;border-bottom:6px solid var(--m)}
+.k-title,.k-no,.k-h,.k-h0,.k-dates,.k-th,.k-total{font-family:var(--fh)}
+.k-title{font-size:84px;font-weight:700;line-height:1;text-transform:uppercase;letter-spacing:1px;color:var(--m)}
+.k-no{font-size:28px;font-weight:500;line-height:1}
+.k-parties{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;padding:32px 0 40px}
+.k-parties>div{display:flex;flex-direction:column;gap:4px}
+.k-h,.k-h0{font-size:13px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--m)}
+.k-h{padding-bottom:6px;border-bottom:1px solid var(--t);margin-bottom:6px}
+.k-dates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--t);border-bottom:1px solid var(--t)}
+.k-dates>div{padding:14px 0;display:flex;flex-direction:column}
+.k-dates>div+div{padding-left:20px;border-left:1px solid var(--t)}
+.k-dates span{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mu)}
+.k-dates b{font-size:20px;font-weight:400}
+.k-table{margin-top:40px;display:flex;flex-direction:column}
+.k-row{display:grid;grid-template-columns:1fr 60px 100px 110px;gap:12px;padding:16px 0;border-bottom:1px solid var(--t)}
+.k-row>div+div{text-align:right}
+.k-th{padding:0 0 10px;border-bottom:3px solid var(--m);font-size:13px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--m)}
+.k-it{font-weight:600}
+.k-sum{align-self:flex-end;width:280px;display:flex;flex-direction:column;gap:6px;padding-top:20px}
+.k-sum>div{display:flex;justify-content:space-between}
+.k-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:32px;font-size:13px}
+.k-foot>.mu{display:flex;flex-direction:column;gap:4px}
+.k-total{display:flex;flex-direction:column;align-items:flex-end;padding-top:12px;border-top:6px solid var(--m);min-width:320px}
+.k-total span{font-size:13px;font-weight:500;letter-spacing:2px;text-transform:uppercase}
+.k-total b{font-size:56px;font-weight:700;line-height:1.1;color:var(--m)}

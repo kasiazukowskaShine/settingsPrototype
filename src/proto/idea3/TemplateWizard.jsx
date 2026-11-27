@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import Paper from '../../Paper.jsx'
 import { Sw } from '../../TemplateEditor.jsx'
 import { CURRENCIES, FlagSelect, ITEM_TYPES, LANGUAGES, PAYMENT_TERMS } from '../../GeneralPresets.jsx'
 import { ICONS } from '../../Icon.jsx'
-import { clone, eff, setP } from '../../data.js'
+import { clone, setP } from '../../data.js'
+import { BrandingForm, BrandPreview, savedBranding } from './BrandingPage.jsx'
+import { TemplatePreview } from './Layouts.jsx'
 import './wizard.css'
 
 /**
@@ -23,8 +24,6 @@ const STEPS = [
 ]
 const PICKS = STEPS.slice(1)
 const TOTALS = ['Total', 'Excluding VAT only', 'Including VAT only']
-const COLORS = ['#2F50E1', '#0F766E', '#B42318', '#7C3AED', '#111111']
-const FONTS = ['Open Sans', 'Inter', 'Georgia', 'Roboto Mono']
 
 const CHECK = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -211,24 +210,8 @@ export default function TemplateWizard({ draft: initial, mode = 'create', start 
         </div>
       </div>
     ),
-    brand: (
-      <>
-        <div className="wz-f">
-          <span className="fl" id={id + 'bc'}>Brand colour</span>
-          <div className="wz-sw" role="radiogroup" aria-labelledby={id + 'bc'}>
-            {COLORS.map((c) => (
-              <button key={c} role="radio" aria-checked={d.brand.color === c} aria-label={c} style={{ '--c': c }} onClick={() => set('brand.color', c)} />
-            ))}
-          </div>
-        </div>
-        <div className="wz-f">
-          <label className="fl" htmlFor={id + 'bf'}>Font</label>
-          <select className="sel" id={id + 'bf'} value={d.brand.font} onChange={(e) => set('brand.font', e.target.value)}>
-            {FONTS.map((o) => <option key={o}>{o}</option>)}
-          </select>
-        </div>
-      </>
-    ),
+    // same controls as settings › Branding, scoped to this template
+    brand: <BrandingForm b={d.brand} setB={(fn) => setD((x) => ({ ...x, brand: typeof fn === 'function' ? fn(x.brand) : fn }))} />,
     pay: (
       <>
         <div className="wz-f">
@@ -278,7 +261,11 @@ export default function TemplateWizard({ draft: initial, mode = 'create', start 
             {pages[step]}
           </div>
           <aside className="i3-pv" aria-label="Preview">
-            <Paper s={eff(d, pv)} brand={pick.brand ? d.brand : undefined} />
+            {step === 'brand' ? (
+              <BrandPreview b={d.brand} />
+            ) : (
+              <TemplatePreview t={d} kind={pv} brand={pick.brand ? d.brand : savedBranding()} />
+            )}
           </aside>
         </div>
         <footer className="wz-foot">
@@ -305,7 +292,7 @@ export default function TemplateWizard({ draft: initial, mode = 'create', start 
 export function wizardDraft(t) {
   return {
     ...clone(t),
-    brand: t.brand ? clone(t.brand) : { font: 'Open Sans', color: '#2F50E1', apply: { header: true, columnHeaders: true, lines: true, total: true } },
+    brand: clone(t.brand?.layout ? t.brand : savedBranding()), // new templates start from the company branding
     remind: t.remind ? clone(t.remind) : { before: true, on: true, after: false },
   }
 }

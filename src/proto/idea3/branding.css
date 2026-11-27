@@ -1,0 +1,44 @@
+/* V3 Branding page (BrandingPage.jsx). Sits in the settings sheet: tabs + form left, preview right, footer bar. */
+.i3-body.bp .i3-left{padding:8px 0 32px}
+.bp .i3-pv .pw{width:min(100%,460px,calc((100dvh - 16px - 72px - 72px - 56px) * .7071));background:transparent}
+.bp-tabs{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--bg-3);margin-bottom:28px}
+.bp-tabs button{height:32px;padding:0 14px;border:0;border-radius:999px;background:none;font:inherit;font-size:14px;font-weight:500;color:var(--fg-2);cursor:pointer;transition:background .15s ease,color .15s ease}
+.bp-tabs button:hover{color:var(--fg)}
+.bp-tabs button.on{background:var(--bg);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.bp-tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bp-panel{animation:fx-step .22s cubic-bezier(.19,1,.22,1) both}
+.bp-sec+.bp-sec{margin-top:40px}
+.bp-sec h3{font-size:14px;line-height:20px;font-weight:500;margin:0}
+.bp-sec>p{margin:4px 0 20px;color:var(--fg-2);font-size:14px;line-height:20px}
+
+.bp-crow{display:grid;grid-template-columns:minmax(0,1fr) 32px 288px;align-items:center;gap:16px;margin-bottom:8px}
+.bp-crow>label:first-child{font-size:14px}
+.bp-sw{width:32px;height:32px;border-radius:8px;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);cursor:pointer;position:relative;overflow:hidden}
+.bp-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:0;padding:0}
+.bp-sw:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.bp-crow .inp{font-size:16px;font-variant-numeric:tabular-nums;text-transform:uppercase}
+
+.bp-layouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.bp-lay,.bp-pair{border:2px solid transparent;background:var(--bg-2);cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.bp-lay{padding:18px;border-radius:16px;display:block}
+.bp-lay .dl-wrap{box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.bp-lay:hover,.bp-pair:hover{background:var(--bg-3)}
+.bp-lay.on,.bp-pair.on{border-color:var(--accent);background:var(--accent-soft)}
+.bp-lay:focus-visible,.bp-pair:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.bp-drop{width:100%;height:100px;border:1.5px dashed var(--line-2);border-radius:16px;background:var(--bg);display:flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:16px;font-weight:600;color:var(--fg);cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.bp-drop svg{width:20px;height:20px}
+.bp-drop:hover,.bp-drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.bp-file{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line-2);border-radius:16px}
+.bp-thumb{width:56px;height:56px;border-radius:10px;background:var(--bg-2);display:grid;place-items:center;overflow:hidden;flex:none;font-size:12px;font-weight:600;color:var(--fg-2)}
+.bp-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.bp-fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.bp-sec .help,.bp-sec .errt{margin-top:12px;font-size:14px}
+
+.bp-pairs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+.bp-pair{border-radius:16px;padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:2px;color:var(--fg);min-height:80px;justify-content:center}
+.bp-pair span{font-size:24px;line-height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-pair small{font-size:14px;line-height:20px}
+
+.wz-foot .btn.dark:disabled{background:var(--bg-3);color:var(--fg-3);cursor:not-allowed;filter:none}
+@media (max-width:900px){.bp-crow{grid-template-columns:minmax(0,1fr) 32px minmax(0,160px)}.bp-layouts{grid-template-columns:repeat(2,minmax(0,1fr))}}
