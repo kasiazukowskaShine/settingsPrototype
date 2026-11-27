@@ -9,6 +9,8 @@ import './wizard.css'
 /**
  * V3: "Create template" is a step-by-step wizard instead of one tabbed form. It opens on a pick screen (no sidebar):
  * which settings to customise. Continue brings in the step list with General plus only what was picked.
+ * Editing an existing template uses the same layout without the pick screen: its steps are what it was created with
+ * (all of them for templates that predate this flow). Every step in the list can be clicked, in both modes.
  * Renders the step list and main column only: it lives inside the settings sheet (IdeaThree keeps that frame
  * mounted and gives it the `wz` class) so opening it morphs the sheet instead of swapping it.
  */
@@ -30,11 +32,17 @@ const CHECK = (
   </svg>
 )
 
-export default function TemplateWizard({ draft: initial, onSave, onClose, onDirty }) {
+const NONE = { inv: false, quo: false, brand: false, pay: false }
+const ALL = { inv: true, quo: true, brand: true, pay: true }
+
+export default function TemplateWizard({ draft: initial, mode = 'create', start = 'general', onSave, onClose, onDirty }) {
+  const edit = mode === 'edit'
   const [d, setD] = useState(initial)
   const [orig] = useState(() => clone(initial))
-  const [pick, setPick] = useState({ inv: false, quo: false, brand: false, pay: false })
-  const [step, setStep] = useState('pick') // 'pick' = the customise screen before the step list
+  const [pick, setPick] = useState(() => (edit ? { ...ALL, ...initial.picks } : NONE))
+  const [origPick] = useState(pick)
+  const [step, setStep] = useState(edit ? start : 'pick') // 'pick' = the customise screen before the step list
+  const [seen, setSeen] = useState(() => new Set()) // create: steps already filled in get a check
   const [err, setErr] = useState(false)
   const nameRef = useRef(null)
   const bodyRef = useRef(null)
@@ -46,7 +54,7 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
       setP(n, path, v)
       return n
     })
-  const dirty = JSON.stringify(d) !== JSON.stringify(orig) || Object.values(pick).some(Boolean)
+  const dirty = JSON.stringify(d) !== JSON.stringify(orig) || JSON.stringify(pick) !== JSON.stringify(origPick)
   useEffect(() => {
     onDirty(dirty)
   }, [dirty])
@@ -56,9 +64,10 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
   const active = steps.map(([k]) => k)
   const at = active.indexOf(step) // -1 on the pick screen
   const next = active[at + 1]
-  const done = (k) => active.indexOf(k) < at
+  const done = (k) => !edit && k !== step && seen.has(k)
 
   const go = (k) => {
+    if (step !== 'pick') setSeen((x) => new Set(x).add(step))
     setStep(k)
     if (bodyRef.current) bodyRef.current.scrollTop = 0
   }
@@ -72,6 +81,7 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
   const finish = (asDraft) => {
     if (!nameOk()) return
     const out = clone(d)
+    out.picks = pick
     if (!pick.brand) delete out.brand
     onSave(out, asDraft)
   }
@@ -241,13 +251,13 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
 
   return (
     <>
-      <nav className="wz-nav" aria-label="Steps" inert={step === 'pick'}>
+      <nav className={'wz-nav' + (edit ? ' in' : '')} aria-label="Steps" inert={step === 'pick'}>
         <ol>
           {steps.map(([k, label], n) => {
             const st = k === step ? 'cur' : done(k) ? 'done' : 'todo'
             return (
               <li key={k}>
-                <button className={'wz-st ' + st} disabled={st !== 'done'} onClick={() => go(k)} aria-current={st === 'cur' ? 'step' : undefined}>
+                <button className={'wz-st ' + st} onClick={() => k !== step && go(k)} aria-current={st === 'cur' ? 'step' : undefined}>
                   <span className="wz-n">{st === 'done' ? CHECK : n + 1}</span>
                   <span>{label}</span>
                 </button>
@@ -258,7 +268,7 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
       </nav>
       <div className={'wz-main' + (step === 'pick' ? ' pick' : '')}>
         <header className="wz-head">
-          <h2>New template</h2>
+          <h2>{edit ? orig.name : 'New template'}</h2>
           <button className="lv-x" onClick={onClose} aria-label="Close">
             {ICONS.close()}
           </button>
@@ -272,9 +282,19 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
           </aside>
         </div>
         <footer className="wz-foot">
-          <button className="btn wh ic-out" onClick={back}>Back</button>
-          <button className="btn wh ic-out" onClick={() => finish(true)}>Save as draft</button>
-          <button className="btn dark" onClick={cont}>{next ? 'Continue' : 'Create'}</button>
+          {edit ? (
+            <>
+              <button className="btn wh ic-out" onClick={onClose}>Cancel</button>
+              {orig.draft && <button className="btn wh ic-out" onClick={() => finish(true)}>Save as draft</button>}
+              <button className="btn dark" onClick={() => finish(false)}>{orig.draft ? 'Create' : 'Save changes'}</button>
+            </>
+          ) : (
+            <>
+              <button className="btn wh ic-out" onClick={back}>Back</button>
+              <button className="btn wh ic-out" onClick={() => finish(true)}>Save as draft</button>
+              <button className="btn dark" onClick={cont}>{next ? 'Continue' : 'Create'}</button>
+            </>
+          )}
         </footer>
       </div>
     </>
@@ -284,8 +304,8 @@ export default function TemplateWizard({ draft: initial, onSave, onClose, onDirt
 /** Fields the wizard edits that the tabbed editor doesn't have yet. */
 export function wizardDraft(t) {
   return {
-    ...t,
-    brand: { font: 'Open Sans', color: '#2F50E1', apply: { header: true, columnHeaders: true, lines: true, total: true } },
-    remind: { before: true, on: true, after: false },
+    ...clone(t),
+    brand: t.brand ? clone(t.brand) : { font: 'Open Sans', color: '#2F50E1', apply: { header: true, columnHeaders: true, lines: true, total: true } },
+    remind: t.remind ? clone(t.remind) : { before: true, on: true, after: false },
   }
 }

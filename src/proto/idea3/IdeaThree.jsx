@@ -16,7 +16,7 @@ const PAGES = ['Logo & branding', 'Payments & reminders', 'Compliance', 'E-invoi
 
 export default function IdeaThree({ templates, setTemplates, toast, onClose, lumen = false, sheet = true, fit = false, wizard = false }) {
   const [E, setE] = useState(null) // { mode, draft, orig, tab, err }
-  const [W, setW] = useState(null) // V3: draft for the step-by-step create wizard
+  const [W, setW] = useState(null) // V3: { draft, mode, start } for the step layout (create and edit)
   const wDirty = useRef(false)
   const [hover, setHover] = useState(0)
   const [dlg, setDlg] = useState(null)
@@ -38,12 +38,18 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
     t.updated = 'just now'
     if (wizard) {
       wDirty.current = false
-      return setW(wizardDraft(t))
+      return setW({ draft: wizardDraft(t), mode: 'create' })
     }
     setE({ mode: 'create', draft: t, orig: clone(t), tab: 'general', err: false })
   }
   const openEdit = (id, tab = 'general', field) => {
     const t = templates.find((x) => x.id === id)
+    if (wizard) {
+      wDirty.current = false
+      // settings search lands on the matching step when the template has one
+      const start = (tab === 'inv' || tab === 'quo') && (!t.picks || t.picks[tab]) ? tab : 'general'
+      return setW({ draft: wizardDraft(t), mode: 'edit', start })
+    }
     setE({ mode: 'edit', draft: clone(t), orig: clone(t), tab, err: false })
     setFocusField(field ? { id: field, n: Date.now() } : null)
   }
@@ -90,7 +96,10 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
     toast('Terms copied from ' + (o === 'inv' ? 'invoices' : 'quotes'))
   }
 
-  const closeWizard = () => (wDirty.current ? setDlg({ msg: 'Your new template hasn’t been saved.', next: () => setW(null) }) : setW(null))
+  const closeWizard = () =>
+    wDirty.current
+      ? setDlg({ msg: W.mode === 'edit' ? `Changes to “${W.draft.name}” haven’t been saved.` : 'Your new template hasn’t been saved.', next: () => setW(null) })
+      : setW(null)
   const save = (asDraft) => {
     const d = clone(E.draft)
     if (!d.name.trim()) {
@@ -141,7 +150,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
   return (
     <>
       {/* One frame for list, editor and V3 wizard, so switching between them animates inside it instead of swapping it */}
-      <div className={'i3' + (lumen || W ? ' lm' : '') + (sheet || W ? ' sheet' : '') + (fit && !W ? ' fit' : '') + (E ? ' full' : '') + (W ? ' wz' : '')} role="dialog" aria-modal="true" aria-label={W ? 'New template' : E ? 'Template editor' : 'Settings'}>
+      <div className={'i3' + (lumen || W ? ' lm' : '') + (sheet || W ? ' sheet' : '') + (fit && !W ? ' fit' : '') + (E ? ' full' : '') + (W ? ' wz' : '') + (wizard ? ' v3' : '')} role="dialog" aria-modal="true" aria-label={W ? (W.mode === 'edit' ? 'Template editor' : 'New template') : E ? 'Template editor' : 'Settings'}>
         {/* the settings menu stays mounted under the wizard too, so it can slide out (and back) like it does for the editor */}
         <aside className="snav i3-nav" aria-hidden={E || W ? 'true' : undefined} inert={!!(E || W)}>
             <h3>Settings</h3>
@@ -159,7 +168,7 @@ export default function IdeaThree({ templates, setTemplates, toast, onClose, lum
             </button>
         </aside>
         {W ? (
-          <TemplateWizard draft={W} onSave={(d, asDraft) => commit(d, asDraft, 'create')} onClose={closeWizard} onDirty={(v) => (wDirty.current = v)} />
+          <TemplateWizard key={W.mode + W.draft.id} draft={W.draft} mode={W.mode} start={W.start} onSave={(d, asDraft) => commit(d, asDraft, W.mode)} onClose={closeWizard} onDirty={(v) => (wDirty.current = v)} />
         ) : (
         <div className="i3-main">
         <header className={'i3-head' + (E ? ' ed' : '')}>

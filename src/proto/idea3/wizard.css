@@ -1,3 +1,5 @@
+/* V3 settings modal: headers (and the wizard footer) sit 32px from the left edge and 24px from the right */
+.i3.v3 .i3-head,.i3.lm.v3 .i3-head{padding:0 24px 0 32px} /* .lm.v3 outranks idea3.css, which loads later */
 /* V3 template wizard: step list | form + preview, actions in a footer bar. Sits in the same inset sheet as settings. */
 .i3.wz{grid-template-columns:232px minmax(0,1fr);--wzh:72px;--wzf:72px} /* the frame's column transition eases 270px -> 232px */
 /* Opening from the templates list works like the other versions' editor hand-off: the frame stays, the settings menu
@@ -10,12 +12,15 @@
 .wz-nav{min-width:0;transition:transform .35s cubic-bezier(.19,1,.22,1),opacity .25s ease .08s}
 .i3.wz:has(.wz-main.pick) .wz-nav{transform:translateX(-100%);opacity:0;visibility:hidden;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .2s ease,visibility 0s .35s}
 .wz-head h2{animation:fade-in .2s ease-out both}
+/* editing opens straight onto the steps: the list fades in while the settings menu slides out under it */
+.wz-nav.in{animation:wz-in .3s cubic-bezier(.19,1,.22,1) .08s both}
+@keyframes wz-in{from{opacity:0;transform:translateX(-12px)}}
+.wz-st:not(.cur){cursor:pointer}
+.wz-st.todo:hover .wz-n{background:var(--bg-3)}
 .wz-foot{animation:fade-in .25s ease-out both}
 .wz-nav{border-right:1px solid var(--line);padding:24px 12px 24px 24px;overflow:hidden auto;width:232px}
 .wz-nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
 .wz-st{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:0;text-align:left;font:inherit;font-size:14px;line-height:20px;color:var(--fg);border-radius:12px}
-.wz-st:disabled{cursor:default}
-.wz-st.done{cursor:pointer}
 .wz-st:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wz-n{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--bg-2);font-size:14px;font-variant-numeric:tabular-nums;transition:background .2s ease,color .2s ease}
 .wz-n svg{width:18px;height:18px}
@@ -26,14 +31,14 @@
 .wz-st.off .wz-n{color:var(--fg-3)}
 
 .wz-main{min-width:0;display:flex;flex-direction:column}
-.wz-head{flex:none;height:var(--wzh);display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.wz-head{flex:none;height:var(--wzh);display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 32px}
 .wz-head h2{font-size:24px;line-height:32px}
 .wz-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;padding-right:32px}
 .wz-form{min-width:0;overflow-y:auto;padding:8px 0 32px 32px;animation:fx-step .22s cubic-bezier(.19,1,.22,1) both}
 @keyframes fx-step{from{opacity:0;transform:translateY(6px)}}
 .wz .i3-pv{padding:28px 40px;align-items:center}
 .wz .i3-pv .pw{width:min(100%,460px,calc((100dvh - 16px - var(--wzh) - var(--wzf) - 56px) * .7071))}
-.wz-foot{flex:none;height:var(--wzf);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 32px}
+.wz-foot{flex:none;height:var(--wzf);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 24px 0 32px}
 .wz-foot .btn.wh{border:1px solid var(--line-2);background:var(--bg)}
 
 .wz-f{margin-bottom:24px}
@@ -66,4 +71,4 @@
   .wz-form{padding:8px 16px 24px}
   .wz-head,.wz-foot{padding:0 16px}
 }
-@media (prefers-reduced-motion:reduce){.wz-form{animation:none}.i3.wz,.wz-nav{transition:none!important}.wz-head h2{animation:fade-in .15s ease both}}
+@media (prefers-reduced-motion:reduce){.wz-form,.wz-nav.in{animation:none}.i3.wz,.wz-nav{transition:none!important}.wz-head h2{animation:fade-in .15s ease both}}
